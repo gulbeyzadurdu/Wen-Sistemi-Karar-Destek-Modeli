@@ -1,0 +1,129 @@
+---
+description: WEN Nexus Industrial Design System v1.0.0
+globs: /frontend
+alwaysApply: false
+---
+
+# WEN Design System (Water-Energy Nexus)
+
+Bu projede UI geliştirirken NEXUS DS v1.0.0 standartlarını uygula.
+
+## 1) Tasarım Prensipleri
+- Industrial clarity: dekorasyon değil, veri önceliklidir.
+- Real-time awareness: sistem durumu görünür olmalı (badge, alarm, state).
+- Mobile-first: küçükten büyüğe responsive yaklaşım uygula.
+- Domain semantics: su/enerji/solar renk dilini karıştırma.
+- Erişilebilirlik: kritik alanlarda en az WCAG AA kontrast hedefle.
+
+## 2) Token-First Zorunluluğu
+- Sabit renk/ölçü yazma (`#hex`, rastgele `px`) -> mevcut tokenları kullan.
+- Tüm stil değerleri `var(--token)` üzerinden gelsin.
+- Yeni token eklemeden önce mevcut tokenları tekrar kullanmayı dene.
+- Tema farkları `:root[data-theme="light"]` override ile çözülür.
+
+## 3) Renk Kuralları
+- Brand: `--navy`, `--blue`, `--blue-light`
+- Domain: `--water`, `--energy`, `--solar`
+- Status: `--ok`, `--warn`, `--red`
+- Surface: `--bg-base`, `--bg-card`, `--bg-panel`, `--bg-elevated`
+- Border: `--border`, `--border-mid`
+
+Domain eşlemesi zorunlu:
+- Su verisi -> `--water`
+- Enerji verisi -> `--energy`
+- Solar verisi -> `--solar`
+
+## 4) Tipografi Kuralları
+- Display/KPI: `--font-display` (Barlow Condensed)
+- Body/Form: `--font-body` (Barlow)
+- Teknik etiket/token/ID: `--font-mono` (JetBrains Mono)
+- Büyük başlık ve KPI değerlerinde `clamp()` kullan.
+- Genel body metinlerinde okunabilirlik öncelikli (14px ve ~1.6 line-height).
+
+## 5) Spacing, Radius, Layout
+- 4px tabanlı spacing skalasını kullan (`--s1`...`--s16`).
+- Radius tokenları: `--r1`...`--r-full`.
+- Mobile-first breakpoint yaklaşımı:
+  - XS/SM: tek kolon, sidebar gizli, gerekirse bottom nav
+  - MD: 2 kolon, sidebar collapsible
+  - LG+: sabit sidebar (200px)
+  - XL+: right panel görünür (240px)
+  - 2XL: max-width 1400px merkezlenmiş düzen
+
+## 6) Bileşen Kuralları
+- KPI kartları domain top-accent ile ayrışmalı.
+- Status badge sistemi sabit renk semantiği ile çalışmalı (ok/warn/red vb.).
+- Buton varyantları token tabanlı olmalı (`btn-primary`, `btn-ghost`, `btn-danger` vb.).
+- Form alanları: default/focus/error/success state'leri net olmalı.
+- Tablolar: minimum satır yüksekliği 44px, status badge ve inline aksiyonlar tutarlı olmalı.
+- Alert/Toast: `danger/warn/ok/info` varyantları border-left + soft background ile ayrışmalı.
+
+## 7) Veri Görselleştirme
+- Grafiklerde domain renk eşlemesi değiştirilemez.
+- Eksen/label ve tooltip okunabilir, düşük gürültülü olmalı.
+- Boş veri durumunda açık bir "Veri yok" empty-state göster.
+- Animasyonlar işlevsel olmalı; gereksiz hareketten kaçın.
+
+## 8) UX Davranış Kuralları
+- Her ekranda birincil kullanıcı amacı (monitor et, müdahale et, raporla) ilk bakışta anlaşılmalı.
+- Kritik bilgiler fold üstünde görünmeli: aktif alarm, sistem sağlığı, ana KPI'lar.
+- Bilgi hiyerarşisi: önce durum/kritiklik, sonra trend, en sonda detay.
+- Her aksiyonda net geri bildirim ver: loading, success, warning, error.
+- Uzun işlemlerde ilerleme durumu göster; kullanıcıyı belirsizlikte bırakma.
+- Hata mesajları çözüm odaklı yazılmalı: ne oldu + kullanıcı ne yapmalı.
+- Empty-state ekranları yönlendirici olmalı (ör. filtreyi temizle, cihaz ekle, veri aralığını değiştir).
+- Filtre/sıralama/arama durumu görünür olmalı ve tek adımda sıfırlanabilmeli.
+- Yıkıcı aksiyonlarda (sil, durdur, alarm kapat) onay adımı zorunlu.
+- Mobile-first sıralama zorunlu: önce mobil çöz, sonra tablet, en son PC varyantını genişlet.
+
+### 8.1 Mobil UX (XS-SM, saha önceliği)
+- Navigasyon: bottom tab bar veya tek seviyeli menü; derin menülerden kaçın.
+- Yerleşim: tek kolon, kart stack, kritik KPI ve alarmlar ilk viewport içinde.
+- Etkileşim: minimum 44x44px dokunma hedefi; birincil CTA alt bölgede kolay erişilebilir.
+- Formlar: kısa adımlar, otomatik klavye tipi (`number`, `email`), net validasyon.
+- Tablolar: mümkünse kart/liste görünümüne dönüş; yatay scroll son çare.
+- Performans algısı: skeleton + progressive render; ağır grafiklerde sade özet göster.
+
+### 8.2 Tablet UX (MD-LG, operasyon dengesi)
+- Navigasyon: hamburger/collapsible sidebar + içerik birlikte çalışmalı.
+- Yerleşim: 2 kolon (gerektiğinde 3), KPI 2x2 veya 3'lü grid; detay paneli modal/drawer olabilir.
+- Etkileşim: touch ve klavye/mouse hibrit kullanımını destekle.
+- Veri yoğunluğu: mobilde gizlenen ikincil metrikler tablette geri açılabilir.
+- Karşılaştırma ekranları: trend + tablo aynı ekranda okunabilir olmalı.
+
+### 8.3 PC UX (LG-2XL, kontrol merkezi)
+- Navigasyon: sabit sidebar (200px) + üst bar + opsiyonel right panel (XL+).
+- Yerleşim: çok kolonlu bilgi mimarisi; kullanıcıya aynı anda izleme + aksiyon imkanı ver.
+- Veri tabloları: inline aksiyon, hızlı filtre, sütun yoğunluğu ve keyboard shortcut desteği.
+- Çoklu panel: alarm akışı, canlı trend ve cihaz listesi eşzamanlı görünür olabilir.
+- Geniş ekran: içerik `max-width: 1400px` içinde kontrollü, aşırı satır uzunluğundan kaçınılır.
+
+## 9) Motion ve Durum Geçişleri
+- `--t-fast` / `--t-mid` / `--t-slow` dışında süre/easing yazma.
+- Alarm ve online durumları dikkat çekici ama sade animasyonlarla belirt.
+- `prefers-reduced-motion` desteği zorunlu.
+- Loading durumlarında skeleton/shimmer kullanılabilir.
+
+## 10) Erişilebilirlik Zorunlulukları
+- Her interaktif öğede erişilebilir isim (`aria-label` veya görünür label) olmalı.
+- Formlarda `label[for]` ve `input[id]` ilişkisi kurulmalı.
+- Hata metinleri `aria-describedby` ile bağlanmalı.
+- Modal/Drawer: focus trap + ESC + `aria-modal`.
+- Klavye ile gezinme mantıklı ve görünür focus ring ile desteklenmeli.
+- Durum değişimleri gerekli yerlerde `aria-live="polite"` ile duyurulmalı.
+- Renk asla tek başına anlam taşımamalı; ikon/metinle desteklenmeli.
+
+## 11) Teslim Öncesi Kontrol
+- Token kullanımı doğrulandı.
+- En az 5 breakpoint'te responsive kontrol yapıldı.
+- Klavye navigasyon testi yapıldı.
+- Screen reader kontrolü yapıldı (NVDA/VoiceOver).
+- WCAG AA kontrast kontrolü yapıldı.
+- Loading/empty/error state'leri tasarlandı.
+- Dokunmatik hedefler minimum 44x44px.
+
+## Kısa Do/Don't
+- Do: Reusable, token tabanlı, domain-semantik bileşen geliştir.
+- Do: KPI, alarm, trend ve tablo bileşenlerinde tutarlı görsel dil kullan.
+- Don't: Inline style veya hard-coded renk/ölçü kullanma.
+- Don't: Domain renklerini karıştırma (ör. enerji verisini water rengiyle gösterme).

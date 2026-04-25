@@ -1,0 +1,87 @@
+@import url('https://fonts.googleapis.com/css2?family=Barlow+Condensed:ital,wght@0,300;0,400;0,600;0,700;0,800&family=Barlow:ital,wght@0,300;0,400;0,500;0,600&family=JetBrains+Mono:ital,wght@0,400;0,500&display=swap');
+
+@tailwind base;
+@tailwind components;
+@tailwind utilities;
+
+@layer base {
+  :root {
+    /* NEXUS DS v1.0.0 — single :root; components use var(--*) only in Tailwind / UI */
+    --font-display: 'Barlow Condensed', system-ui, sans-serif;
+    --font-body: 'Barlow', system-ui, sans-serif;
+    --font-mono: 'JetBrains Mono', ui-monospace, monospace;
+    --navy: #0a3a6b;
+    --blue: #0969b0;
+    --blue-light: #1a8bdc;
+    --blue-ghost: rgba(9, 105, 176, 0.12);
+    --charcoal: #3a3a3a;
+    --water: #1a8bdc;
+    --energy: #f07c20;
+    --solar: #3bcfcf;
+    --ok: #1dae6f;
+    --warn: #f0b820;
+    --red: #e8000f;
+    --ok-soft: rgba(29, 174, 111, 0.15);
+    --warn-soft: rgba(240, 184, 32, 0.15);
+    --red-soft: rgba(232, 0, 15, 0.12);
+    --slate: #555f6b;
+    --silver: #9ca3af;
+    --white: #f8fafc;
+    --bg-base: #0d1117;
+    --bg-card: #131b24;
+    --bg-panel: #1a2535;
+    --bg-elevated: #1f2d3d;
+    --border: rgba(255, 255, 255, 0.07);
+    --border-mid: rgba(255, 255, 255, 0.12);
+    --s1: 4px;
+    --s2: 8px;
+    --s3: 12px;
+    --s4: 16px;
+    --s5: 20px;
+    --s6: 24px;
+    --s8: 32px;
+    --s10: 40px;
+    --s12: 48px;
+    --s16: 64px;
+    --r1: 4px;
+    --r2: 8px;
+    --r3: 12px;
+    --r4: 16px;
+    --r-full: 999px;
+    --shadow-card: 0 2px 12px rgba(0, 0, 0, 0.35);
+    --t-fast: 120ms;
+    --t-mid: 220ms;
+    --t-slow: 380ms;
+  }
+  * {
+    @apply border-border;
+  }
+  body {
+    @apply min-h-svh bg-background font-sans text-foreground text-sm leading-relaxed antialiased;
+  }
+}
+
+@layer utilities {
+  .text-display-xl {
+    font-family: var(--font-display);
+    font-weight: 800;
+    font-size: clamp(40px, 6vw, 72px);
+    line-height: 1.1;
+  }
+  .text-data-value {
+    font-family: var(--font-display);
+    font-weight: 700;
+    font-size: clamp(32px, 5vw, 56px);
+    line-height: 1.1;
+  }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  *,
+  *::before,
+  *::after {
+    animation-duration: 0.01ms !important;
+    animation-iteration-count: 1 !important;
+    transition-duration: 0.01ms !important;
+  }
+}
