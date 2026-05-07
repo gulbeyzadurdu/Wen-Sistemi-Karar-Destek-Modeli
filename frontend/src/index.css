@@ -27,7 +27,8 @@
     --slate: #555f6b;
     --silver: #9ca3af;
     --white: #f8fafc;
-    --bg-base: #0d1117;
+    /* Spec default shell: darker industrial blue-black */
+    --bg-base: #07090f;
     --bg-card: #131b24;
     --bg-panel: #1a2535;
     --bg-elevated: #1f2d3d;
@@ -83,5 +84,15 @@
     animation-duration: 0.01ms !important;
     animation-iteration-count: 1 !important;
     transition-duration: 0.01ms !important;
+  }
+}
+
+:root {
+  --crisis-interval: 1.2s;
+}
+
+@media (prefers-reduced-motion: reduce) {
+  :root {
+    --crisis-interval: 0ms;
   }
 }

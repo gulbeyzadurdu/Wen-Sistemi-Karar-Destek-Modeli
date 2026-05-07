@@ -67,10 +67,16 @@ export default {
       keyframes: {
         'accordion-down': { from: { height: '0' }, to: { height: 'var(--radix-accordion-content-height)' } },
         'accordion-up': { from: { height: 'var(--radix-accordion-content-height)' }, to: { height: '0' } },
+        'crisis-flash': {
+          '0%, 49%': { backgroundColor: 'rgba(232, 0, 15, 0.18)' },
+          '50%, 100%': { backgroundColor: 'rgba(232, 0, 15, 0.05)' },
+        },
       },
       animation: {
         'accordion-down': 'accordion-down 0.2s ease-out',
         'accordion-up': 'accordion-up 0.2s ease-out',
+        'crisis-flash':
+          'crisis-flash var(--crisis-interval, 1.2s) steps(2, jump-none) infinite',
       },
     },
   },
