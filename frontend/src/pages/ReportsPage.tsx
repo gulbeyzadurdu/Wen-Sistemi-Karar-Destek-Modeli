@@ -2,11 +2,17 @@ import { ClipboardList } from 'lucide-react'
 
 import { PDFReportExporter } from '@/components/reports/PDFReportExporter'
 import { useLiveTelemetry } from '@/hooks/useLiveTelemetry'
+import { exportIndustrialCsv, exportIndustrialExcelCompatible } from '@/lib/data-exporter'
 import { useNexusComputation } from '@/hooks/useNexus'
+import { useOpsStore } from '@/stores/ops-store'
+import { useCrisisStore } from '@/stores/crisis-store'
+import { Button } from '@/components/ui/button'
 
 export function ReportsPage() {
   const telemetry = useLiveTelemetry()
   const { ratio } = useNexusComputation(telemetry.data?.energy_kwh, telemetry.data?.water_m3)
+  const selectedFactoryId = useOpsStore((s) => s.selectedFactoryId)
+  const crisisLevel = useCrisisStore((s) => s.level)
 
   const snapshot = telemetry.data ? `${telemetry.data.energy_kwh} kWh / ${telemetry.data.water_m3} m³` : 'Paket bekleniyor'
 
@@ -31,6 +37,14 @@ export function ReportsPage() {
             Hesaplanan Nexus oranı Rn: <span className="font-semibold text-solar">{ratio != null ? ratio.toFixed(3) : '—'}</span>
           </p>
         </header>
+        <div className="grid gap-s3 md:grid-cols-2">
+          <Button type="button" variant="outline" onClick={() => exportIndustrialCsv(selectedFactoryId, crisisLevel)}>
+            Profesyonel CSV Dışa Aktar
+          </Button>
+          <Button type="button" variant="secondary" onClick={() => exportIndustrialExcelCompatible(selectedFactoryId, crisisLevel)}>
+            Excel Uyumlu CSV Dışa Aktar
+          </Button>
+        </div>
         <PDFReportExporter />
         <footer className="text-xs leading-relaxed text-slate">
           PDF çıktıları backend WeasyPrint hattına bağlandığında aynı buton doğrudan `application/pdf` yanıtı indirecek.

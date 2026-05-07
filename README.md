@@ -1,16 +1,69 @@
-# WEN — Water–Energy Nexus Karar Destek Sistemi
+# WEN Sistemi — Su–Enerji Nexus Karar Destek Paneli
 
-## Geliştirme ortamı (Faz 0)
+Endüstriyel Su–Enerji Nexus karar destek arayüzü. Stratejik (yönetici) ve Teknik (operasyon) rolleri için, canlı telemetri simülasyonu, çok katmanlı kriz protokolü (Sarı / Turuncu / Kod Kırmızı / Acil Su Kesintisi), ESG çıktıları ve fabrika bazlı izleme akışı sunar.
 
-1. Kökte `.env` oluşturun: `.env.example` dosyasını kopyalayın (`copy .env.example .env`).
-2. Altyapıyı ayağa kaldırın: `docker compose up -d` (TimescaleDB/PostgreSQL 15, Redis, Mosquitto).
+---
+
+## Hızlı Başlangıç (Yalnızca Frontend — önerilen test yolu)
+
+Frontend tamamen **mock veri** ile çalışır; demoyu denemek için backend veya Docker gerekmez.
+
+```bash
+git clone <repo-url>
+cd "WEN Sistemi - Karar Destek Modeli/frontend"
+npm install
+npm run dev
+```
+
+Tarayıcıda açın: **http://localhost:5173**
+
+### Test Kullanıcıları (Mock JWT)
+
+Giriş ekranında aşağıdaki hesaplardan birini kullanın:
+
+| Rol | Kullanıcı Adı | Şifre | Erişim |
+|---|---|---|---|
+| **Stratejik (Yönetici)** | `admin@bosb.gov.tr` | `admin` | Stratejik panel, Trend analizi, ESG raporu, Bildirimler |
+| **Teknik (Operasyon)** | `operator@bosb.gov.tr` | `operator` | Operasyon paneli, Ham veri, Anomaliler |
+
+> Her iki rol de `/crisis`, `/simulations` ve `/settings` ekranlarına erişebilir. Oturum bilgisi `localStorage` üzerinde tutulur; `Ayarlar → Oturumu kapat` ile temizlenir.
+
+---
+
+## Ne Test Edebilirsiniz?
+
+- **Stratejik panel:** KPI kartları, dinamik Nexus Gauge (Rₙ = Eₜ / Wₜ), 6 aylık ESG trend grafiği, fabrika seçimi (BOSB geneli ↔ tek fabrika), maliyet & karbon ayak izi tahmini.
+- **Operasyon paneli:** MQTT mock canlı çoklu eksen grafik, eşik referans çizgileri, sensör spark-line kartları (pompa / vana / basınç), son 10 paket tablosu, anomali akışı.
+- **Kriz protokolü (`/crisis`):** Seviye makinesi (Sarı → Turuncu hazırlık checklist'i → Kod Kırmızı sıralı aksiyon checklist'i), her adım için audit mock PUT.
+- **Simülasyon Merkezi (`/simulations`):** "Yüksek Su Tüketimi", "Enerji Dalgalanması", "Kod Kırmızı" ve "Acil Su Kesintisi" senaryolarını manuel tetikleme; sahaya bildirim akışı simülasyonu.
+- **Ayarlar (`/settings`):** Eşik kaydırıcıları (fabrika bazlı), bildirim/bölge/dil seçenekleri, MQTT bağlantı simülasyonu (Online ↔ Redis fallback), açık/koyu tema.
+
+---
+
+## Tam Kurulum (Backend + Altyapı)
+
+Backend henüz aktif olarak frontend'e bağlanmadığı için zorunlu değildir. Yine de denemek isterseniz:
+
+1. Kökte `.env` oluşturun: `copy .env.example .env`
+2. Altyapıyı başlatın: `docker compose up -d` (TimescaleDB/PostgreSQL 15, Redis, Mosquitto)
 3. **Backend** (`/backend`):
    - `python -m venv .venv` ve `.\.venv\Scripts\activate` (Windows)
    - `pip install -r requirements.txt`
    - `uvicorn app.main:app --reload --host 0.0.0.0 --port 8000`
-   - Sağlık: [GET /v1/health](http://127.0.0.1:8000/v1/health) ve [POST /v1/health](http://127.0.0.1:8000/v1/health) (RORO `include_details` gövdesi)
-4. **Frontend** (`/frontend`):
-   - `npm install`
-   - `npm run dev` → [http://localhost:5173](http://localhost:5173)
+   - Sağlık kontrolü: [GET /v1/health](http://127.0.0.1:8000/v1/health)
 
-Uygulama ayrıntıları ve fazlar için kök [plan.md](plan.md), [prd.md](prd.md) ve [mvp.md](mvp.md) dosyalarına bakın; Cursor kuralları `.cursor/rules/` altında.
+---
+
+## Teknoloji Yığını
+
+- **Frontend:** React 19 + TypeScript + Vite, Tailwind CSS, Zustand, TanStack Query, Recharts, lucide-react, react-router-dom v7
+- **Backend (iskelet):** FastAPI (Python 3.11+), Uvicorn
+- **Altyapı:** TimescaleDB / PostgreSQL 15, Redis, Mosquitto (MQTT)
+
+## Proje Belgeleri
+
+- [plan.md](plan.md) — Faz 0-3 yol haritası
+- [prd.md](prd.md) — Ürün gereksinimleri
+- [mvp.md](mvp.md) — MVP kapsamı
+- [frontend/user flow.md](frontend/user%20flow.md) — Detaylı UI akışı ve Nexus eşik tanımları
+- [.cursor/rules/](.cursor/rules/) — Cursor kodlama kuralları

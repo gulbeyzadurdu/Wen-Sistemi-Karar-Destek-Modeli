@@ -1,3 +1,4 @@
+import { ShieldAlert, Volume2, VolumeX } from 'lucide-react'
 import { Outlet } from 'react-router-dom'
 
 import { CrisisStrip } from '@/components/layout/CrisisStrip'
@@ -5,17 +6,34 @@ import { DataOfflineBanner } from '@/components/layout/DataOfflineBanner'
 import { GlobalHeader } from '@/components/layout/GlobalHeader'
 import { MobileNav } from '@/components/layout/MobileNav'
 import { SideNav } from '@/components/layout/SideNav'
+import { cn } from '@/lib/utils'
 import { useConnectionStore } from '@/stores/connection-store'
+import { useCrisisStore } from '@/stores/crisis-store'
 
 export function AppShell() {
   const mqttConnected = useConnectionStore((s) => s.mqttConnected)
   const redisFallback = useConnectionStore((s) => s.redisFallbackActive)
+  const level = useCrisisStore((s) => s.level)
+  const alarmMuted = useCrisisStore((s) => s.alarmMuted)
+  const isEmergency = level === 'KOD_KIRMIZI' || level === 'WATER_CUTOFF'
 
   return (
-    <div className="flex min-h-svh flex-col bg-base text-foreground">
+    <div
+      className={cn(
+        'flex min-h-svh flex-col bg-base text-foreground',
+        isEmergency ? 'border border-destructive/60 shadow-[0_0_50px_rgba(239,68,68,0.5)]' : '',
+      )}
+    >
       <GlobalHeader />
       <DataOfflineBanner mqttConnected={mqttConnected} redisFallbackActive={redisFallback} />
       <CrisisStrip />
+      {isEmergency ? (
+        <div className="fixed right-4 top-24 z-50 inline-flex items-center gap-s2 rounded-md border border-destructive/60 bg-red-soft px-s3 py-s2 text-xs text-destructive">
+          <ShieldAlert className="h-4 w-4" />
+          {alarmMuted ? <VolumeX className="h-4 w-4" /> : <Volume2 className="h-4 w-4" />}
+          Acil Alarm
+        </div>
+      ) : null}
       <div className="mx-auto flex w-full max-w-content flex-1 gap-s4 px-s4 py-s6">
         <div className="hidden w-64 shrink-0 lg:block">
           <SideNav />

@@ -8,6 +8,7 @@ import { cn } from '@/lib/utils'
 import { useCrisisStore } from '@/stores/crisis-store'
 import { useAuthStore } from '@/stores/auth-store'
 import { useConnectionStore } from '@/stores/connection-store'
+import { WeatherWidget } from '@/components/layout/WeatherWidget'
 
 function StatusDot({
   variant,
@@ -36,14 +37,14 @@ function StatusDot({
 }
 
 export function GlobalHeader({ className }: { className?: string }) {
-  const displayName = useAuthStore((s) => s.displayName)
+  const displayName = useAuthStore((s) => s.user?.name ?? 'Misafir')
 
   const mqttConnected = useConnectionStore((s) => s.mqttConnected)
   const redisFallback = useConnectionStore((s) => s.redisFallbackActive)
 
   const telemetry = useLiveTelemetry()
 
-  const lockedRed = useCrisisStore((s) => s.manualLock && s.level === 'red')
+  const lockedRed = useCrisisStore((s) => s.manualLock && (s.level === 'red' || s.level === 'KOD_KIRMIZI' || s.level === 'WATER_CUTOFF'))
 
   const { tier } = useNexusComputation(
     telemetry.data?.energy_kwh,
@@ -63,7 +64,7 @@ export function GlobalHeader({ className }: { className?: string }) {
   const mqttLabel = mqttConnected
     ? 'MQTT · Canlı'
     : redisFallback
-      ? 'MQTT · Fallback'
+      ? 'MQTT · Yedek Hat'
       : 'MQTT · Kapalı'
 
   return (
@@ -78,20 +79,21 @@ export function GlobalHeader({ className }: { className?: string }) {
           <Link to="/" className="flex items-center gap-s2 text-foreground no-underline">
             <Radar className="h-6 w-6 text-water" aria-hidden />
             <div>
-              <p className="font-mono text-[10px] uppercase tracking-[0.4em] text-slate">WEN Nexus DS</p>
-              <p className="font-display text-lg tracking-wide">Decision Support Shell</p>
+              <p className="font-mono text-[10px] uppercase tracking-[0.4em] text-slate">WEN Sistemi</p>
+              <p className="font-display text-lg tracking-wide">Karar Destek Paneli</p>
             </div>
           </Link>
         </div>
 
         <div className="flex flex-wrap items-center justify-end gap-s2">
+          <WeatherWidget />
           <StatusDot variant={mqttVariant} label={mqttLabel} />
-          <StatusDot variant={healthVariant} label={`SYSTEM · ${tier.toUpperCase()}`} />
+          <StatusDot variant={healthVariant} label={`SİSTEM · ${tier.toUpperCase()}`} />
 
           <Button variant="secondary" size="sm" asChild className="font-mono uppercase tracking-[0.3em]">
             <Link to="/crisis" className="inline-flex items-center gap-s2 no-underline">
               <Shield className="h-4 w-4 text-destructive" />
-              Crisis
+              Kriz
             </Link>
           </Button>
 

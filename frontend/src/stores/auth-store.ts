@@ -3,42 +3,43 @@ import { persist } from 'zustand/middleware'
 
 import type { UserRole } from '@/types/wen'
 
-type AuthState = {
-  token: string | null
+type AuthUser = {
+  id: string
+  name: string
   role: UserRole
-  userId: string
-  displayName: string
-  login: (role: UserRole, displayName?: string) => void
+}
+
+type AuthState = {
+  user: AuthUser | null
+  isAuthenticated: boolean
+  login: (role: UserRole, name?: string) => void
   logout: () => void
 }
 
 export const useAuthStore = create<AuthState>()(
   persist(
     (set) => ({
-      token: null,
-      role: 'STRATEGIC',
-      userId: 'guest',
-      displayName: 'Misafir',
-      login(role, displayName) {
-        const uid = crypto.randomUUID()
+      user: null,
+      isAuthenticated: false,
+      login(role, name) {
         set({
-          token: `mock-jwt.${uid}`,
-          role,
-          userId: uid,
-          displayName: displayName ?? (role === 'STRATEGIC' ? 'Arif — Strateji' : 'Emre — Operasyon'),
+          user: {
+            id: crypto.randomUUID(),
+            role,
+            name: name ?? (role === 'STRATEGIC' ? 'Arif - Strateji' : 'Emre - Operasyon'),
+          },
+          isAuthenticated: true,
         })
       },
       logout() {
-        set({ token: null, userId: 'guest', displayName: 'Misafir' })
+        set({ user: null, isAuthenticated: false })
       },
     }),
     {
       name: 'wen-auth',
       partialize: (state) => ({
-        token: state.token,
-        role: state.role,
-        userId: state.userId,
-        displayName: state.displayName,
+        user: state.user,
+        isAuthenticated: state.isAuthenticated,
       }),
     },
   ),

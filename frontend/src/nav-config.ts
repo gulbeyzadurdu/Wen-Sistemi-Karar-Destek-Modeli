@@ -8,7 +8,7 @@ import {
   History,
   LayoutDashboard,
   Settings2,
-  SlidersHorizontal,
+  ShieldAlert,
 } from 'lucide-react'
 import type { LucideIcon } from 'lucide-react'
 
@@ -21,21 +21,21 @@ export type NavItem = {
 }
 
 export const STRATEGIC_LINKS: NavItem[] = [
-  { to: '/dashboard-strategic', label: 'Stratejik dash', icon: LayoutDashboard },
+  { to: '/dashboard-strategic', label: 'Stratejik panel', icon: LayoutDashboard },
   { to: '/analysis', label: 'Trend analizi', icon: BarChart3 },
   { to: '/reports', label: 'ESG raporu', icon: FileText },
   { to: '/notifications', label: 'Bildirimler', icon: Bell },
 ]
 
 export const TECHNICAL_LINKS: NavItem[] = [
-  { to: '/dashboard-technical', label: 'Operasyon gözü', icon: Gauge },
-  { to: '/thresholds', label: 'Sensör eşikleri', icon: SlidersHorizontal },
+  { to: '/dashboard-technical', label: 'Operasyon paneli', icon: Gauge },
   { to: '/historical', label: 'Ham veri', icon: History },
   { to: '/anomalies', label: 'Anomali', icon: AlertTriangle },
 ]
 
 export const UNIVERSAL_LINKS: NavItem[] = [
   { to: '/crisis', label: 'Kriz protokolü', icon: Flame },
+  { to: '/simulations', label: 'Simülasyon merkezi', icon: ShieldAlert },
   { to: '/settings', label: 'Ayarlar', icon: Settings2 },
 ]
 

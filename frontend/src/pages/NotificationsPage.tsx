@@ -36,7 +36,7 @@ export function NotificationsPage() {
             <div className="flex flex-wrap items-start gap-s4">
               <Icon className="h-6 w-6 text-water" aria-hidden />
               <div className="space-y-s2">
-                <div className="flex flex-wrap gap-s3 font-semibold uppercase tracking-[0.35em] text-slate">
+                <div className="flex flex-wrap gap-s3 font-semibold tracking-[0.2em] text-slate">
                   <span className="text-foreground">{title}</span>
                   <span className="font-mono text-[10px] text-solar">{ts}</span>
                 </div>

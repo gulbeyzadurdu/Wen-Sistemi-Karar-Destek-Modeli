@@ -12,9 +12,9 @@ import { NotificationsPage } from '@/pages/NotificationsPage'
 import { ReportsPage } from '@/pages/ReportsPage'
 import { RoleHomeRedirect } from '@/pages/RoleHomeRedirect'
 import { SettingsPage } from '@/pages/SettingsPage'
+import { SimulationCenterPage } from '@/pages/SimulationCenterPage'
 import { StrategicDashboardPage } from '@/pages/StrategicDashboardPage'
 import { TechnicalDashboardPage } from '@/pages/TechnicalDashboardPage'
-import { ThresholdsPage } from '@/pages/ThresholdsPage'
 
 import { ProtectedLayout } from '@/providers/ProtectedLayout'
 
@@ -73,15 +73,6 @@ export default function App() {
           />
 
           <Route
-            path="thresholds"
-            element={
-              <RoleGate allow="TECHNICAL">
-                <ThresholdsPage />
-              </RoleGate>
-            }
-          />
-
-          <Route
             path="historical"
             element={
               <RoleGate allow="TECHNICAL">
@@ -100,6 +91,7 @@ export default function App() {
           />
 
           <Route path="crisis" element={<CrisisPage />} />
+          <Route path="simulations" element={<SimulationCenterPage />} />
           <Route path="settings" element={<SettingsPage />} />
           <Route path="*" element={<Navigate to="/" replace />} />
         </Route>

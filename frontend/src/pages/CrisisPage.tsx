@@ -22,16 +22,21 @@ export function CrisisPage() {
   const level = useCrisisStore((levelState) => levelState.level)
   const escalateToRed = useCrisisStore((levelState) => levelState.escalateToRed)
   const resolveIncident = useCrisisStore((levelState) => levelState.resolveIncident)
+  const resetSystem = useCrisisStore((levelState) => levelState.resetSystem)
   const notifyAck = useCrisisStore((levelState) => levelState.notifyTeamAck)
   const setNotifyTeamAck = useCrisisStore((levelState) => levelState.setNotifyTeamAck)
-  const userId = useAuthStore((auth) => auth.userId)
+  const userId = useAuthStore((auth) => auth.user?.id ?? 'guest')
 
   return (
     <div
       className={cn(
         'space-y-s6 rounded-3xl border border-border px-s6 py-s10 shadow-card',
-        level === 'red' ? 'animate-crisis-flash motion-reduce:animate-none' : '',
-        level === 'red' ? 'bg-red-soft border-destructive/40 text-destructive' : level === 'orange' ? 'bg-warn-soft' : '',
+        level === 'red' || level === 'KOD_KIRMIZI' || level === 'WATER_CUTOFF' ? 'animate-crisis-flash motion-reduce:animate-none' : '',
+        level === 'red' || level === 'KOD_KIRMIZI' || level === 'WATER_CUTOFF'
+          ? 'bg-red-soft border-destructive/40 text-destructive'
+          : level === 'orange'
+            ? 'bg-warn-soft'
+            : '',
       )}
     >
       <header className="space-y-s2">
@@ -78,10 +83,10 @@ export function CrisisPage() {
         </section>
       ) : null}
 
-      {level === 'red' ? (
+      {(level === 'red' || level === 'KOD_KIRMIZI' || level === 'WATER_CUTOFF') ? (
         <section className={cn('space-y-s5 rounded-2xl border border-destructive/60 bg-card/92 p-s6 backdrop-blur')}>
           <div className="flex flex-wrap items-center justify-between gap-s4 border-b border-destructive/40 pb-s4 font-mono text-[11px] uppercase tracking-[0.55em] text-destructive">
-            <span className="text-base font-semibold">KOD KIRMIZI</span>
+            <span className="text-base font-semibold">{level === 'WATER_CUTOFF' ? 'ACİL SU KESİNTİSİ' : 'KOD KIRMIZI'}</span>
             <span className="text-xs lowercase tracking-normal text-muted-foreground">Sesli uyarı tasarında · tarayıcı engeline karşı bildirimi manuel doğrula</span>
           </div>
           <ProtocolChecklist sequenced userId={userId} steps={RED_SEQUENCE} />
@@ -91,6 +96,9 @@ export function CrisisPage() {
       <div className="flex flex-wrap gap-s4">
         <Button type="button" variant="outline" disabled={level === 'none'} onClick={resolveIncident} className="inline-flex gap-s3">
           <ShieldOff aria-hidden /> Olay çözümü · `/crisis/resolve` mock
+        </Button>
+        <Button type="button" variant="destructive" onClick={resetSystem}>
+          Reset System
         </Button>
       </div>
     </div>

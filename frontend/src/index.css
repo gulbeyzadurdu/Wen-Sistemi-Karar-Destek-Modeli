@@ -34,6 +34,11 @@
     --bg-elevated: #1f2d3d;
     --border: rgba(255, 255, 255, 0.07);
     --border-mid: rgba(255, 255, 255, 0.12);
+    --chart-grid: rgba(255, 255, 255, 0.08);
+    --chart-tooltip-bg: #0e141d;
+    --chart-tooltip-border: rgba(255, 255, 255, 0.12);
+    --chart-axis: #94a3b8;
+    --chart-label: #e2e8f0;
     --s1: 4px;
     --s2: 8px;
     --s3: 12px;
@@ -53,6 +58,39 @@
     --t-fast: 120ms;
     --t-mid: 220ms;
     --t-slow: 380ms;
+    --crisis-interval: 1.2s;
+  }
+
+  :root[data-theme='light'] {
+    --navy: #c7d7e8;
+    --blue: #0f6cab;
+    --blue-light: #0f6ea6;
+    --blue-ghost: rgba(15, 110, 166, 0.16);
+    --charcoal: #253244;
+    --water: #0e5f97;
+    --energy: #9a5608;
+    --solar: #0f6f73;
+    --ok: #0b7f4b;
+    --warn: #c88e19;
+    --red: #d3162a;
+    --ok-soft: rgba(15, 159, 97, 0.16);
+    --warn-soft: rgba(216, 154, 19, 0.16);
+    --red-soft: rgba(211, 22, 42, 0.11);
+    --slate: #526277;
+    --silver: #5f738a;
+    --white: #0f172a;
+    --bg-base: #dfe8f2;
+    --bg-card: #edf3f9;
+    --bg-panel: #d6e1ee;
+    --bg-elevated: #c9d7e6;
+    --border: rgba(28, 51, 78, 0.22);
+    --border-mid: rgba(28, 51, 78, 0.28);
+    --shadow-card: 0 4px 14px rgba(38, 55, 74, 0.12);
+    --chart-grid: rgba(27, 49, 74, 0.16);
+    --chart-tooltip-bg: #e7eef6;
+    --chart-tooltip-border: rgba(30, 52, 79, 0.26);
+    --chart-axis: #31445c;
+    --chart-label: #0f172a;
   }
   * {
     @apply border-border;
@@ -60,6 +98,7 @@
   body {
     @apply min-h-svh bg-background font-sans text-foreground text-sm leading-relaxed antialiased;
   }
+
 }
 
 @layer utilities {
@@ -75,24 +114,40 @@
     font-size: clamp(32px, 5vw, 56px);
     line-height: 1.1;
   }
+
+  .login-shake {
+    animation: login-shake 340ms ease-in-out;
+  }
+}
+
+@keyframes login-shake {
+  0%,
+  100% {
+    transform: translateX(0);
+  }
+  20% {
+    transform: translateX(-8px);
+  }
+  40% {
+    transform: translateX(8px);
+  }
+  60% {
+    transform: translateX(-6px);
+  }
+  80% {
+    transform: translateX(6px);
+  }
 }
 
 @media (prefers-reduced-motion: reduce) {
+  :root {
+    --crisis-interval: 0ms;
+  }
   *,
   *::before,
   *::after {
     animation-duration: 0.01ms !important;
     animation-iteration-count: 1 !important;
     transition-duration: 0.01ms !important;
-  }
-}
-
-:root {
-  --crisis-interval: 1.2s;
-}
-
-@media (prefers-reduced-motion: reduce) {
-  :root {
-    --crisis-interval: 0ms;
   }
 }

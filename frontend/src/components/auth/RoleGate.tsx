@@ -10,7 +10,7 @@ type Props = {
 }
 
 export function RoleGate({ allow, children }: Props) {
-  const role = useAuthStore((s) => s.role)
+  const role = useAuthStore((s) => s.user?.role ?? 'STRATEGIC')
   const accepted = Array.isArray(allow) ? allow : [allow]
 
   if (!accepted.includes(role)) {

@@ -14,6 +14,10 @@ export function CrisisActionBanner({ className }: { className?: string }) {
       ? 'Gözlem modu aktif · trend takibini sürdürün'
       : level === 'orange'
         ? 'Hazırlık protokolü açılabilir · kod turuncuya geçiş'
+        : level === 'WATER_CUTOFF'
+          ? 'Acil su kesintisi modu · tüm su verisi 0landı'
+          : level === 'KOD_KIRMIZI'
+            ? 'Kod Kırmızı — üst alarm seviyesi aktif'
         : 'Kod Kırmızı — zorunlu aksiyon seti bekleniyor'
 
   return (
@@ -22,6 +26,8 @@ export function CrisisActionBanner({ className }: { className?: string }) {
         'flex flex-wrap items-center justify-between gap-s4 rounded-xl border px-s5 py-s4 font-semibold uppercase tracking-[0.35em] shadow-card duration-mid',
         level === 'red'
           ? 'border-destructive/70 bg-red-soft text-destructive animate-crisis-flash motion-reduce:animate-none motion-reduce:bg-red-soft'
+          : level === 'KOD_KIRMIZI' || level === 'WATER_CUTOFF'
+            ? 'border-destructive/70 bg-red-soft text-destructive'
           : level === 'orange'
             ? 'border-energy/70 bg-warn-soft text-energy'
             : 'border-warn/60 bg-warn-soft text-warn',

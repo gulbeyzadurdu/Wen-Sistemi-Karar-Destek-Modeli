@@ -2,11 +2,13 @@ import { Radar } from 'lucide-react'
 
 import { TechnicalLiveChart } from '@/components/charts/TechnicalLiveChart'
 import { useTechnicalSeries } from '@/hooks/useLiveTelemetry'
+import { useOpsStore } from '@/stores/ops-store'
 import { useThresholdStore } from '@/stores/threshold-store'
 
 export function AnalysisPage() {
   const series = useTechnicalSeries()
-  const thresholds = useThresholdStore((s) => s.values)
+  const selectedFactoryId = useOpsStore((s) => s.selectedFactoryId)
+  const thresholds = useThresholdStore((s) => s.getValues(selectedFactoryId))
 
   return (
     <div className="space-y-s6">

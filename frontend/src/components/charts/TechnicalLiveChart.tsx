@@ -23,35 +23,35 @@ export function TechnicalLiveChart({ rows, thresholds }: Props) {
     <div className="h-[360px] w-full rounded-lg border border-border bg-card p-s4 shadow-card">
       <ResponsiveContainer width="100%" height="100%">
         <LineChart data={rows} margin={{ top: 12, right: 18, left: 0, bottom: 0 }}>
-          <CartesianGrid stroke="rgba(255,255,255,0.08)" vertical={false} />
-          <XAxis dataKey="t" tick={{ fill: '#94a3b8', fontSize: 11 }} />
+          <CartesianGrid stroke="var(--chart-grid)" vertical={false} />
+          <XAxis dataKey="t" tick={{ fill: 'var(--chart-axis)', fontSize: 11 }} />
           <YAxis
             yAxisId="water"
             orientation="left"
-            tick={{ fill: '#1a8bdc', fontSize: 11 }}
+            tick={{ fill: '#22a7d8', fontSize: 11 }}
             domain={['auto', 'auto']}
-            label={{ value: 'Su (m³)', angle: -90, position: 'insideLeft', fill: '#1a8bdc' }}
+            label={{ value: 'Su Akisi (m³/h)', angle: -90, position: 'insideLeft', fill: '#22a7d8' }}
           />
           <YAxis
             yAxisId="energy"
             orientation="right"
-            tick={{ fill: '#f07c20', fontSize: 11 }}
+            tick={{ fill: '#ffcf6a', fontSize: 11 }}
             domain={['auto', 'auto']}
-            label={{ value: 'Enerji (kWh)', angle: 90, position: 'insideRight', fill: '#f07c20' }}
+            label={{ value: 'Enerji (kWh)', angle: 90, position: 'insideRight', fill: '#ffcf6a' }}
           />
           <Tooltip
             contentStyle={{
-              backgroundColor: '#0e141d',
-              borderColor: 'rgba(255,255,255,0.12)',
+              backgroundColor: 'var(--chart-tooltip-bg)',
+              borderColor: 'var(--chart-tooltip-border)',
               borderRadius: 8,
             }}
-            labelStyle={{ color: '#e2e8f0', fontFamily: 'var(--font-mono)' }}
+            labelStyle={{ color: 'var(--chart-label)', fontFamily: 'var(--font-mono)' }}
           />
-          <Legend verticalAlign="top" height={32} formatter={(value) => <span style={{ color: '#cbd5f5' }}>{value}</span>} />
-          <ReferenceLine yAxisId="water" y={thresholds.waterMin} stroke="#cbd5f5" strokeDasharray="5 8" opacity={0.45} />
-          <ReferenceLine yAxisId="water" y={thresholds.waterMax} stroke="#cbd5f5" strokeDasharray="5 8" opacity={0.45} />
-          <ReferenceLine yAxisId="energy" y={thresholds.energyMin} stroke="#fcd34d" strokeDasharray="5 8" opacity={0.45} />
-          <ReferenceLine yAxisId="energy" y={thresholds.energyMax} stroke="#fcd34d" strokeDasharray="5 8" opacity={0.45} />
+          <Legend verticalAlign="top" height={32} formatter={(value) => <span style={{ color: 'var(--chart-label)' }}>{value}</span>} />
+          <ReferenceLine yAxisId="water" y={thresholds.waterMin} stroke="#f0a500" strokeDasharray="5 8" opacity={0.45} />
+          <ReferenceLine yAxisId="water" y={thresholds.waterMax} stroke="#f0a500" strokeDasharray="5 8" opacity={0.45} />
+          <ReferenceLine yAxisId="energy" y={thresholds.energyMin} stroke="#ffcf6a" strokeDasharray="5 8" opacity={0.45} />
+          <ReferenceLine yAxisId="energy" y={thresholds.energyMax} stroke="#ffcf6a" strokeDasharray="5 8" opacity={0.45} />
 
           <Line
             dot={false}
@@ -59,7 +59,7 @@ export function TechnicalLiveChart({ rows, thresholds }: Props) {
             yAxisId="water"
             dataKey="water"
             name="Su"
-            stroke="var(--water)"
+            stroke="#22a7d8"
             strokeWidth={3}
           />
           <Line
@@ -68,7 +68,7 @@ export function TechnicalLiveChart({ rows, thresholds }: Props) {
             yAxisId="energy"
             dataKey="energy"
             name="Enerji"
-            stroke="var(--energy)"
+            stroke="#ffcf6a"
             strokeWidth={3}
           />
         </LineChart>

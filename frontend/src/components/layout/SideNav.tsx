@@ -6,7 +6,7 @@ import { resolveNav } from '@/nav-config'
 import { useAuthStore } from '@/stores/auth-store'
 
 export function SideNav() {
-  const role = useAuthStore((s) => s.role)
+  const role = useAuthStore((s) => s.user?.role ?? 'STRATEGIC')
   const links = resolveNav(role)
 
   return (
@@ -42,7 +42,7 @@ export function SideNav() {
         <div className="flex items-center gap-s2">
           <Activity className="h-4 w-4 text-solar" aria-hidden />
           <p>
-            MQTT mock + Redis fallback senaryolarını <span className="text-foreground">Ayarlar</span> üzerinden aç.
+            MQTT örnek akışı + Redis yedek hat senaryolarını <span className="text-foreground">Ayarlar</span> üzerinden aç.
           </p>
         </div>
       </div>

@@ -1,9 +1,13 @@
 import { ShieldAlert } from 'lucide-react'
 
 import { useAnomalies } from '@/hooks/useAnomalies'
+import { FACTORIES } from '@/mocks/factories'
+import { useOpsStore } from '@/stores/ops-store'
 
 export function AnomaliesPage() {
-  const anomalies = useAnomalies()
+  const selectedFactoryId = useOpsStore((s) => s.selectedFactoryId)
+  const selectedFactory = FACTORIES.find((factory) => factory.id === selectedFactoryId)
+  const anomalies = useAnomalies(selectedFactoryId)
 
   return (
     <div className="space-y-s6">

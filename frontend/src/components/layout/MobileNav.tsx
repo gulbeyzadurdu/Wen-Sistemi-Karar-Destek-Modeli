@@ -5,7 +5,7 @@ import { resolveNav } from '@/nav-config'
 import { useAuthStore } from '@/stores/auth-store'
 
 export function MobileNav() {
-  const role = useAuthStore((s) => s.role)
+  const role = useAuthStore((s) => s.user?.role ?? 'STRATEGIC')
   const links = resolveNav(role)
 
   return (

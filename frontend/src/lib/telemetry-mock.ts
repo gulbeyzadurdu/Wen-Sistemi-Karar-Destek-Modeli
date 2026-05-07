@@ -1,3 +1,5 @@
+import { FACTORY_ANOMALY_HISTORY } from '@/mocks/anomalies'
+
 export type LiveTelemetry = {
   energy_kwh: number
   water_m3: number
@@ -38,10 +40,6 @@ export async function fetchLiveTelemetry(): Promise<LiveTelemetry> {
   return packet
 }
 
-export function peekLastTelemetry(): LiveTelemetry | null {
-  return lastPacket
-}
-
 export async function fetchSeriesSnapshots(points = 140): Promise<ChartRow[]> {
   const anchor =
     lastPacket ??
@@ -76,28 +74,12 @@ export async function fetchSeriesSnapshots(points = 140): Promise<ChartRow[]> {
   return rows.slice(-Math.min(points, rows.length))
 }
 
-export async function fetchAnomalies(): Promise<Array<{ id: string; severity: string; summary: string; ts: string }>> {
-  const now = Date.now()
-  return [
-    {
-      id: 'ANM-921',
-      severity: 'Turuncu',
-      summary: '%18 sapma: enerji yükselişi beklenenden hızlı',
-      ts: new Date(now - 8 * 60_000).toLocaleString('tr-TR'),
-    },
-    {
-      id: 'ANM-905',
-      severity: 'Sarı',
-      summary: 'Gözlem: su debisi stabilize olmadı (15 dk)',
-      ts: new Date(now - 26 * 60_000).toLocaleString('tr-TR'),
-    },
-    {
-      id: 'ANM-877',
-      severity: 'Yeşil',
-      summary: 'Kural motoru doğruladı · false positive filtrelendi',
-      ts: new Date(now - 3 * 60 * 60_000).toLocaleString('tr-TR'),
-    },
-  ]
+export async function fetchAnomalies(factoryId: 'ALL' | string = 'ALL') {
+  const rows =
+    factoryId === 'ALL'
+      ? FACTORY_ANOMALY_HISTORY
+      : FACTORY_ANOMALY_HISTORY.filter((entry) => entry.factoryId === factoryId)
+  return rows
 }
 
 function clamp(v: number, min: number, max: number) {
