@@ -1,11 +1,12 @@
-import { Radar, Shield, UserRound } from 'lucide-react'
-import { Link } from 'react-router-dom'
+import { Bell, LogOut, Radar, Settings, UserRound, X } from 'lucide-react'
+import { useEffect, useState } from 'react'
+import { Link, useNavigate } from 'react-router-dom'
 
 import { useLiveTelemetry } from '@/hooks/useLiveTelemetry'
 import { useNexusComputation } from '@/hooks/useNexus'
 import { Button } from '@/components/ui/button'
 import { cn } from '@/lib/utils'
-import { useCrisisStore } from '@/stores/crisis-store'
+import { useCrisisStore, type CrisisLogEntry } from '@/stores/crisis-store'
 import { useAuthStore } from '@/stores/auth-store'
 import { useConnectionStore } from '@/stores/connection-store'
 import { WeatherWidget } from '@/components/layout/WeatherWidget'
@@ -38,13 +39,17 @@ function StatusDot({
 
 export function GlobalHeader({ className }: { className?: string }) {
   const displayName = useAuthStore((s) => s.user?.name ?? 'Misafir')
+  const logout = useAuthStore((s) => s.logout)
 
   const mqttConnected = useConnectionStore((s) => s.mqttConnected)
   const redisFallback = useConnectionStore((s) => s.redisFallbackActive)
 
   const telemetry = useLiveTelemetry()
 
-  const lockedRed = useCrisisStore((s) => s.manualLock && (s.level === 'red' || s.level === 'KOD_KIRMIZI' || s.level === 'WATER_CUTOFF'))
+  const lockedRed = useCrisisStore(
+    (s) => s.manualLock && (s.level === 'red' || s.level === 'KOD_KIRMIZI' || s.level === 'WATER_CUTOFF'),
+  )
+  const crisisLogs = useCrisisStore((s) => s.notificationLogs)
 
   const { tier } = useNexusComputation(
     telemetry.data?.energy_kwh,
@@ -52,11 +57,38 @@ export function GlobalHeader({ className }: { className?: string }) {
     lockedRed,
   )
 
+  const [isProfileOpen, setIsProfileOpen] = useState(false)
+  const [isNotifOpen, setIsNotifOpen] = useState(false)
+  const [notifications, setNotifications] = useState<CrisisLogEntry[]>(crisisLogs)
+  const navigate = useNavigate()
+
+  useEffect(() => {
+    setNotifications(crisisLogs)
+  }, [crisisLogs])
+
+  const dismissNotification = (id: string) => {
+    setNotifications((prev) => prev.filter((n) => n.id !== id))
+  }
+
+  const closeProfile = () => {
+    setIsProfileOpen(false)
+    setIsNotifOpen(false)
+  }
+
   let healthVariant: Parameters<typeof StatusDot>[0]['variant'] = 'neutral'
   if (tier === 'normal') healthVariant = 'ok'
   else if (tier === 'warning') healthVariant = 'warn'
   else if (tier === 'alert') healthVariant = 'alert'
   else if (tier === 'critical') healthVariant = 'danger'
+
+  const healthLabel =
+    tier === 'normal'
+      ? 'Sistem Sağlıklı'
+      : tier === 'warning'
+        ? 'Sistem Uyarı'
+        : tier === 'alert'
+          ? 'Sistem Alarm'
+          : 'Sistem Kritik'
 
   let mqttVariant: Parameters<typeof StatusDot>[0]['variant'] = mqttConnected ? 'ok' : 'danger'
   if (!mqttConnected && redisFallback) mqttVariant = 'warn'
@@ -68,12 +100,7 @@ export function GlobalHeader({ className }: { className?: string }) {
       : 'MQTT · Kapalı'
 
   return (
-    <header
-      className={cn(
-        'sticky top-0 z-40 border-b border-border bg-base/92 px-s6 py-s4 backdrop-blur-md',
-        className,
-      )}
-    >
+    <header className={cn('glass-header sticky top-0 z-50 border-b border-border px-s6 py-s4', className)}>
       <div className="mx-auto flex w-full max-w-content flex-wrap items-center justify-between gap-s4">
         <div className="flex items-center gap-s3">
           <Link to="/" className="flex items-center gap-s2 text-foreground no-underline">
@@ -88,21 +115,102 @@ export function GlobalHeader({ className }: { className?: string }) {
         <div className="flex flex-wrap items-center justify-end gap-s2">
           <WeatherWidget />
           <StatusDot variant={mqttVariant} label={mqttLabel} />
-          <StatusDot variant={healthVariant} label={`SİSTEM · ${tier.toUpperCase()}`} />
+          <StatusDot variant={healthVariant} label={healthLabel} />
 
-          <Button variant="secondary" size="sm" asChild className="font-mono uppercase tracking-[0.3em]">
-            <Link to="/crisis" className="inline-flex items-center gap-s2 no-underline">
-              <Shield className="h-4 w-4 text-destructive" />
-              Kriz
-            </Link>
-          </Button>
+          {/* Profile & Notifications dropdown */}
+          <div className="relative">
+            {isProfileOpen && (
+              <div className="fixed inset-0 z-40" onClick={closeProfile} aria-hidden />
+            )}
 
-          <Button variant="ghost" size="sm" asChild className="font-mono uppercase tracking-[0.3em]">
-            <Link to="/settings" className="inline-flex items-center gap-s2 no-underline">
+            <Button
+              variant="ghost"
+              size="sm"
+              onClick={() => {
+                setIsProfileOpen((p) => !p)
+                setIsNotifOpen(false)
+              }}
+              className="relative z-50 font-mono uppercase tracking-[0.3em]"
+            >
               <UserRound className="h-4 w-4 text-solar" aria-hidden />
               {displayName}
-            </Link>
-          </Button>
+              {notifications.length > 0 && (
+                <span className="absolute -right-1 -top-1 flex h-4 w-4 items-center justify-center rounded-full bg-destructive text-[9px] font-bold text-white">
+                  {notifications.length > 9 ? '9+' : notifications.length}
+                </span>
+              )}
+            </Button>
+
+            {isProfileOpen && (
+              <div className="absolute right-0 top-[calc(100%+8px)] z-50 flex w-56 flex-col gap-1 rounded-2xl border border-white/10 bg-[#0b1422]/95 p-2 shadow-[0_12px_40px_rgba(0,0,0,0.7)] backdrop-blur-2xl">
+                {/* Profil */}
+                <button
+                  className="flex w-full items-center gap-s2 rounded-md px-s3 py-s2 text-left text-sm text-foreground transition hover:bg-elevated/60"
+                  onClick={() => { navigate('/profile'); closeProfile() }}
+                >
+                  <UserRound className="h-4 w-4 text-solar" aria-hidden />
+                  Profil
+                </button>
+
+                {/* Bildirimler */}
+                <button
+                  className="flex w-full items-center justify-between gap-s2 rounded-md px-s3 py-s2 text-left text-sm text-foreground transition hover:bg-elevated/60"
+                  onClick={() => setIsNotifOpen((p) => !p)}
+                >
+                  <span className="flex items-center gap-s2">
+                    <Bell className="h-4 w-4 text-solar" aria-hidden />
+                    Bildirimler
+                  </span>
+                  {notifications.length > 0 && (
+                    <span className="flex h-5 min-w-[1.25rem] items-center justify-center rounded-full bg-destructive px-1 text-[10px] font-semibold text-white">
+                      {notifications.length}
+                    </span>
+                  )}
+                </button>
+
+                {isNotifOpen && (
+                  <div className="max-h-52 space-y-s1 overflow-y-auto rounded-md border border-border bg-elevated/40 p-s2">
+                    {notifications.length === 0 ? (
+                      <p className="px-s2 py-s3 text-center text-xs text-slate">Okunmamış bildirim yok.</p>
+                    ) : (
+                      notifications.map((n) => (
+                        <button
+                          key={n.id}
+                          onClick={() => dismissNotification(n.id)}
+                          className="flex w-full items-start gap-s2 rounded px-s2 py-s2 text-left text-xs transition hover:bg-elevated/80"
+                          title="Tıkla ve kapat"
+                        >
+                          <X className="mt-px h-3 w-3 shrink-0 text-slate" aria-hidden />
+                          <span className="flex-1 text-foreground">{n.message}</span>
+                        </button>
+                      ))
+                    )}
+                  </div>
+                )}
+
+                <div className="my-1 border-t border-border" />
+
+                {/* Ayarlar */}
+                <Link
+                  to="/settings"
+                  onClick={closeProfile}
+                  className="flex items-center gap-s2 rounded-md px-s3 py-s2 text-sm text-foreground no-underline transition hover:bg-elevated/60"
+                >
+                  <Settings className="h-4 w-4 text-slate" aria-hidden />
+                  Ayarlar
+                </Link>
+
+                {/* Çıkış Yap */}
+                <button
+                  className="flex w-full items-center gap-s2 rounded-md px-s3 py-s2 text-left text-sm text-destructive transition hover:bg-red-soft"
+                  onClick={() => { logout(); navigate('/login'); closeProfile() }}
+                >
+                  <LogOut className="h-4 w-4" aria-hidden />
+                  Çıkış Yap
+                </button>
+              </div>
+            )}
+          </div>
         </div>
       </div>
     </header>

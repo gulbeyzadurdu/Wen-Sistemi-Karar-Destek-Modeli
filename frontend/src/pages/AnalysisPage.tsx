@@ -13,7 +13,7 @@ export function AnalysisPage() {
   return (
     <div className="space-y-s6">
       <header className="space-y-s2">
-        <p className="font-mono text-[11px] uppercase tracking-[0.45em] text-slate">/analysis</p>
+        <p className="font-mono text-[11px] uppercase tracking-[0.45em] text-slate">/trend-analizi</p>
         <div className="flex flex-wrap items-center gap-s3">
           <Radar className="h-7 w-7 text-energy" aria-hidden />
           <div>

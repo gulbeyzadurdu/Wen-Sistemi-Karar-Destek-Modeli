@@ -82,10 +82,10 @@ export function LoginPage() {
 
   return (
     <div className="flex min-h-svh items-center justify-center bg-[#07090f] px-s4 py-s16 text-[#e6edf5]">
-      <div className="mx-auto w-full max-w-md rounded-2xl border border-[#1d2a3d] bg-[#0f1622]/95 p-s8 shadow-[0_20px_80px_rgba(0,0,0,0.45)] backdrop-blur">
+      <div className="glass-card mx-auto w-full max-w-md p-8">
         <div className="mb-s8 space-y-s3">
           <p className="font-mono text-[11px] uppercase tracking-[0.45em] text-[#6f859f]">WEN Nexus Güvenli Erişim</p>
-          <h1 className="font-display text-5xl leading-none text-[#e6edf5]">Giriş Paneli</h1>
+          <h1 className="font-display text-5xl leading-none text-[#e6edf5]">Sisteme Giriş</h1>
           <p className="text-sm text-[#92a5bd]">Su-Enerji karar destek ekranlarına erişmek için kimlik doğrulaması yapın.</p>
         </div>
 
@@ -102,7 +102,7 @@ export function LoginPage() {
                 value={username}
                 onChange={(event) => setUsername(event.target.value)}
                 autoComplete="username"
-                placeholder="admin@bosb.gov.tr veya operator@bosb.gov.tr"
+                placeholder="kullanici@bosb.gov.tr"
                 className="h-11 w-full bg-transparent text-sm text-[#e6edf5] placeholder:text-[#5d728d] focus:outline-none"
               />
             </div>
@@ -121,7 +121,7 @@ export function LoginPage() {
                 value={password}
                 onChange={(event) => setPassword(event.target.value)}
                 autoComplete="current-password"
-                placeholder="******"
+                placeholder="Şifrenizi girin"
                 className="h-11 w-full bg-transparent text-sm text-[#e6edf5] placeholder:text-[#5d728d] focus:outline-none"
               />
               <button
@@ -176,9 +176,6 @@ export function LoginPage() {
           </Button>
         </form>
 
-        <p className="mt-s5 text-xs text-[#6f859f]">
-          Demo hesaplar: `admin@bosb.gov.tr / admin` (STRATEGIC) ve `operator@bosb.gov.tr / operator` (TECHNICAL)
-        </p>
       </div>
 
       {showSupportMessage ? (

@@ -24,6 +24,10 @@ export function AppShell() {
         isEmergency ? 'border border-destructive/60 shadow-[0_0_50px_rgba(239,68,68,0.5)]' : '',
       )}
     >
+      <div className="fixed inset-0 -z-10 overflow-hidden bg-[#080c14]">
+        <div className="absolute left-[20%] top-[-10%] h-[500px] w-[500px] rounded-full bg-cyan-500/5 blur-[120px]" />
+        <div className="absolute bottom-[10%] right-[15%] h-[450px] w-[450px] rounded-full bg-violet-500/5 blur-[100px]" />
+      </div>
       <GlobalHeader />
       <DataOfflineBanner mqttConnected={mqttConnected} redisFallbackActive={redisFallback} />
       <CrisisStrip />
@@ -38,7 +42,7 @@ export function AppShell() {
         <div className="hidden w-64 shrink-0 lg:block">
           <SideNav />
         </div>
-        <main className="flex-1 space-y-s6">
+        <main className="flex-1 space-y-s6 page-enter-active">
           <MobileNav />
           <Outlet />
         </main>

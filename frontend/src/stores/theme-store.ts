@@ -1,21 +1,11 @@
 import { create } from 'zustand'
-import { persist } from 'zustand/middleware'
 
-export type AppTheme = 'dark' | 'light'
+export type AppTheme = 'dark'
 
 type ThemeState = {
   theme: AppTheme
-  setTheme: (theme: AppTheme) => void
-  toggleTheme: () => void
 }
 
-export const useThemeStore = create<ThemeState>()(
-  persist(
-    (set, get) => ({
-      theme: 'dark',
-      setTheme: (theme) => set({ theme }),
-      toggleTheme: () => set({ theme: get().theme === 'dark' ? 'light' : 'dark' }),
-    }),
-    { name: 'wen-theme' },
-  ),
-)
+export const useThemeStore = create<ThemeState>()(() => ({
+  theme: 'dark',
+}))

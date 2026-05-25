@@ -10,8 +10,8 @@ export default {
       maxWidth: { content: '1400px' },
       fontFamily: {
         display: ['var(--font-display)', 'system-ui', 'sans-serif'],
-        sans: ['var(--font-body)', 'ui-sans-serif', 'system-ui', 'sans-serif'],
-        mono: ['var(--font-mono)', 'ui-monospace', 'monospace'],
+        sans: ['var(--font-sans)', 'DM Sans', 'sans-serif'],
+        mono: ['var(--font-mono)', 'DM Mono', 'monospace'],
       },
       colors: {
         background: 'var(--bg-base)',

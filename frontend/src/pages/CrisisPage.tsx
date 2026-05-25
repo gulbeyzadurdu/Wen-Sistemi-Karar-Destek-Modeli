@@ -1,4 +1,4 @@
-import { Megaphone, ShieldOff } from 'lucide-react'
+import { Megaphone, PlayCircle, ShieldOff } from 'lucide-react'
 
 import { ProtocolChecklist, type ChecklistStep } from '@/components/crisis/ProtocolChecklist'
 import { Button } from '@/components/ui/button'
@@ -25,7 +25,13 @@ export function CrisisPage() {
   const resetSystem = useCrisisStore((levelState) => levelState.resetSystem)
   const notifyAck = useCrisisStore((levelState) => levelState.notifyTeamAck)
   const setNotifyTeamAck = useCrisisStore((levelState) => levelState.setNotifyTeamAck)
+  const startInterventionSimulation = useCrisisStore((s) => s.startInterventionSimulation)
   const userId = useAuthStore((auth) => auth.user?.id ?? 'guest')
+
+  const handleInterventionSimulation = () => {
+    new Audio('https://assets.mixkit.co/active_storage/sfx/2568/2568-84.wav').play().catch(() => {})
+    startInterventionSimulation(userId)
+  }
 
   return (
     <div
@@ -40,7 +46,7 @@ export function CrisisPage() {
       )}
     >
       <header className="space-y-s2">
-        <p className="font-mono text-[11px] uppercase tracking-[0.45em] text-slate">/crisis</p>
+        <p className="font-mono text-[11px] uppercase tracking-[0.45em] text-slate">/kriz-protokolu</p>
         <h1 className="font-display text-4xl text-foreground drop-shadow-[0_0_18px_var(--destructive)]">Kriz müdahale motoru</h1>
         <p className="text-slate">Sarı gözlem, turuncu hazırlık ve kod kırmızı aksiyon seviye makinesinin mock arayüzü</p>
       </header>
@@ -50,6 +56,22 @@ export function CrisisPage() {
           Şu anda aktif kriz bildirimi yok. Nexustan gelecek otomatik sinyaller bu ekranın üst bağlantılı şekilde tetiklenir.
         </p>
       ) : null}
+
+      <section className="glass-card flex flex-wrap items-center justify-between gap-s4 border border-white/10 p-6">
+        <div>
+          <h2 className="font-semibold text-slate-100">Müdahale Simülasyonu</h2>
+          <p className="mt-1 text-xs text-slate">
+            Kriz müdahale protokolünü başlat — bildirim kanalları, denetim kaydı ve turuncu hazırlık checklist'i tetiklenir.
+          </p>
+        </div>
+        <Button
+          onClick={handleInterventionSimulation}
+          className="bg-[#22a7d8] font-semibold text-[#04111a] hover:bg-[#40b8e4]"
+        >
+          <PlayCircle className="h-4 w-4" aria-hidden />
+          Müdahale Simülasyonunu Başlat
+        </Button>
+      </section>
 
       {level === 'yellow' ? (
         <aside className="rounded-2xl border border-warn/40 bg-warn-soft px-s6 py-s4 text-lg font-semibold text-warn">

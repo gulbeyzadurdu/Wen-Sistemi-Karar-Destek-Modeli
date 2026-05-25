@@ -12,7 +12,7 @@ export function AnomaliesPage() {
   return (
     <div className="space-y-s6">
       <header className="space-y-s2">
-        <p className="font-mono text-[11px] uppercase tracking-[0.45em] text-slate">/anomalies</p>
+        <p className="font-mono text-[11px] uppercase tracking-[0.45em] text-slate">/anomaliler</p>
         <div className="flex flex-wrap items-center gap-s3">
           <ShieldAlert className="h-8 w-8 text-energy" aria-hidden />
           <div>

@@ -1,13 +1,11 @@
 import {
   AlertTriangle,
   BarChart3,
-  Bell,
   FileText,
   Flame,
   Gauge,
   History,
   LayoutDashboard,
-  Settings2,
   ShieldAlert,
 } from 'lucide-react'
 import type { LucideIcon } from 'lucide-react'
@@ -24,7 +22,6 @@ export const STRATEGIC_LINKS: NavItem[] = [
   { to: '/dashboard-strategic', label: 'Stratejik panel', icon: LayoutDashboard },
   { to: '/analysis', label: 'Trend analizi', icon: BarChart3 },
   { to: '/reports', label: 'ESG raporu', icon: FileText },
-  { to: '/notifications', label: 'Bildirimler', icon: Bell },
 ]
 
 export const TECHNICAL_LINKS: NavItem[] = [
@@ -36,7 +33,6 @@ export const TECHNICAL_LINKS: NavItem[] = [
 export const UNIVERSAL_LINKS: NavItem[] = [
   { to: '/crisis', label: 'Kriz protokolü', icon: Flame },
   { to: '/simulations', label: 'Simülasyon merkezi', icon: ShieldAlert },
-  { to: '/settings', label: 'Ayarlar', icon: Settings2 },
 ]
 
 export function resolveNav(role: UserRole): NavItem[] {

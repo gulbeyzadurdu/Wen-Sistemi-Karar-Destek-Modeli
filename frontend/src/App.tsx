@@ -16,6 +16,8 @@ import { SimulationCenterPage } from '@/pages/SimulationCenterPage'
 import { StrategicDashboardPage } from '@/pages/StrategicDashboardPage'
 import { TechnicalDashboardPage } from '@/pages/TechnicalDashboardPage'
 
+import { ProfilePage } from '@/pages/ProfilePage'
+
 import { ProtectedLayout } from '@/providers/ProtectedLayout'
 
 export default function App() {
@@ -93,6 +95,7 @@ export default function App() {
           <Route path="crisis" element={<CrisisPage />} />
           <Route path="simulations" element={<SimulationCenterPage />} />
           <Route path="settings" element={<SettingsPage />} />
+          <Route path="profile" element={<ProfilePage />} />
           <Route path="*" element={<Navigate to="/" replace />} />
         </Route>
       </Route>

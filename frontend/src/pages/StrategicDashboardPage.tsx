@@ -4,6 +4,7 @@ import { type ComponentType, useMemo } from 'react'
 import { NexusGauge } from '@/components/charts/NexusGauge'
 import { StrategicTrendChart } from '@/components/charts/StrategicTrendChart'
 import { FactorySelector } from '@/components/factories/FactorySelector'
+import { IoTGatewayPanel } from '@/components/iot/IoTGatewayPanel'
 import { CrisisActionBanner } from '@/components/strategic/CrisisActionBanner'
 import { useLiveTelemetry } from '@/hooks/useLiveTelemetry'
 import { useNexusComputation, type NexusComputation } from '@/hooks/useNexus'
@@ -26,7 +27,7 @@ type KpiCardProps = {
 
 function KpiCard({ title, value, detail, accent, trend, progress, icon: Icon }: KpiCardProps) {
   return (
-    <article className="rounded-xl border border-[#1f3248] bg-card p-s5 shadow-card">
+    <article className="glass-card glass-card-hover p-s5">
       <div className="flex items-start justify-between gap-s3">
         <div>
           <p className="font-mono text-[11px] uppercase tracking-[0.45em] text-slate">{title}</p>
@@ -137,7 +138,7 @@ export function StrategicDashboardPage() {
   return (
     <div className="space-y-s6">
       <header className="space-y-s2">
-        <p className="font-mono text-[11px] uppercase tracking-[0.45em] text-slate">/dashboard-strategic</p>
+        <p className="font-mono text-[11px] uppercase tracking-[0.45em] text-slate">/stratejik-panel</p>
         <div className="flex flex-wrap items-center gap-s4">
           <Layers3 className="h-8 w-8 text-[#22a7d8]" aria-hidden />
           <div>
@@ -155,7 +156,7 @@ export function StrategicDashboardPage() {
         </section>
       ) : null}
 
-      <section className="flex flex-wrap items-center justify-between gap-s3 rounded-xl border border-border bg-card p-s4">
+      <section className="glass-card flex flex-wrap items-center justify-between gap-s3 p-s4">
         <p className="font-mono text-sm tracking-[0.2em] text-slate">
           Aktif kapsam: <span className="text-foreground">{scopeLabel}</span> · Durum:{' '}
           <span className={statusTone}>{statusText}</span>
@@ -166,6 +167,8 @@ export function StrategicDashboardPage() {
       </section>
 
       <CrisisActionBanner />
+
+      <IoTGatewayPanel />
 
       <section className="grid gap-s4 md:grid-cols-2 xl:grid-cols-3">
         <KpiCard
@@ -194,9 +197,9 @@ export function StrategicDashboardPage() {
       </section>
 
       {isFactorySelected ? (
-        <section className="space-y-s4 rounded-xl border border-border bg-card p-s5">
+        <section className="glass-card space-y-s4 p-s5">
           <div className="flex items-center justify-between gap-s3">
-            <h2 className="font-mono text-[11px] uppercase tracking-[0.45em] text-slate">BOSB Genel Verileri</h2>
+            <h2 className="font-mono text-[11px] uppercase tracking-[0.12em] text-slate">BOSB Genel Verileri</h2>
             <span className="text-xs text-slate">Seçili fabrika üstte sabitlendi</span>
           </div>
           <div className="grid gap-s4 md:grid-cols-2 xl:grid-cols-3">
@@ -224,9 +227,9 @@ export function StrategicDashboardPage() {
               icon={Activity}
             />
           </div>
-          <article className="rounded-xl border border-[#1f3248] bg-card p-s5 shadow-card">
+          <article className="glass-card p-s5">
             <div className="mb-s3 flex items-center justify-between gap-s3">
-              <h3 className="font-mono text-[11px] uppercase tracking-[0.45em] text-slate">BOSB Trend Analizi (6 Ay)</h3>
+              <h3 className="font-mono text-[11px] uppercase tracking-[0.12em] text-slate">BOSB Trend Analizi (6 Ay)</h3>
               <span className="text-xs text-[#22a7d8]">Enerji ve Su</span>
             </div>
             <StrategicTrendChart rows={bosbSixMonthData} />
@@ -239,8 +242,8 @@ export function StrategicDashboardPage() {
       ) : null}
 
       <section className="grid gap-s4 xl:grid-cols-[320px,minmax(0,1fr)]">
-        <article className="rounded-xl border border-[#1f3248] bg-card p-s5 shadow-card">
-          <h2 className="mb-s3 font-mono text-[11px] uppercase tracking-[0.45em] text-slate">Nexus Gauge</h2>
+        <article className="glass-card p-s5">
+          <h2 className="mb-s3 font-mono text-[11px] uppercase tracking-[0.12em] text-slate">Nexus Göstergesi</h2>
           <NexusGauge ratio={effectiveRatio} />
           <p className="mt-s3 text-xs text-slate">
             Rn 0.8-1.2 arası yeşil, 1.5 üstü turuncu/kırmızı risk bandı olarak yorumlanır.
@@ -248,21 +251,21 @@ export function StrategicDashboardPage() {
         </article>
 
         <div className="space-y-s4">
-          <article className="rounded-xl border border-[#1f3248] bg-card p-s5 shadow-card">
+          <article className="glass-card p-s5">
             <div className="mb-s3 flex items-center justify-between gap-s3">
-              <h2 className="font-mono text-[11px] uppercase tracking-[0.45em] text-slate">ESG Trend Analizi (6 Ay)</h2>
+              <h2 className="font-mono text-[11px] uppercase tracking-[0.12em] text-slate">ESG Trend Analizi (6 Ay)</h2>
               <span className="text-xs text-[#22a7d8]">Enerji ve Su</span>
             </div>
             <StrategicTrendChart rows={sixMonthData} />
           </article>
 
           <section className="grid gap-s4 md:grid-cols-2">
-            <article className="rounded-xl border border-border bg-elevated/50 p-s5">
+            <article className="glass-card glass-card-hover p-s5">
               <p className="font-mono text-[11px] uppercase tracking-[0.35em] text-slate">Maliyet Tahmini</p>
               <p className="mt-s2 text-2xl font-semibold text-foreground">~ {estimatedCost.toFixed(0)} USD / ay</p>
               <p className="mt-s2 text-xs text-muted-foreground">Enerji birim maliyeti bazli yonetsel tahmin</p>
             </article>
-            <article className="rounded-xl border border-border bg-elevated/50 p-s5">
+            <article className="glass-card glass-card-hover p-s5">
               <p className="font-mono text-[11px] uppercase tracking-[0.35em] text-slate">Karbon Ayak İzi</p>
               <p className="mt-s2 text-2xl font-semibold text-foreground">~ {carbonFootprint.toFixed(2)} tCO2e</p>
               <p className="mt-s2 text-xs text-muted-foreground">Enerji tüketimi tabanlı aylık emisyon projeksiyonu</p>

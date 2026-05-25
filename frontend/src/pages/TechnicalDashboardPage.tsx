@@ -2,6 +2,8 @@ import { Activity, AlertTriangle, Gauge, Settings, Terminal } from 'lucide-react
 import { type ComponentType, useMemo } from 'react'
 import { Link } from 'react-router-dom'
 
+import { useDateFormat } from '@/hooks/useDateFormat'
+
 import { TechnicalLiveChart } from '@/components/charts/TechnicalLiveChart'
 import { FactorySelector } from '@/components/factories/FactorySelector'
 import { IoTGatewayPanel } from '@/components/iot/IoTGatewayPanel'
@@ -50,7 +52,7 @@ function Sparkline({ values, stroke }: { values: number[]; stroke: string }) {
 
 function SensorCard({ title, value, unit, toneClass, icon: Icon, sparkline }: SensorCardProps) {
   return (
-    <article className="rounded-xl border border-border bg-card p-s4 shadow-card">
+    <article className="glass-card glass-card-hover p-s4">
       <div className="flex items-center justify-between gap-s3">
         <p className="font-mono text-[11px] uppercase tracking-[0.4em] text-slate">{title}</p>
         <Icon className="h-4 w-4 text-[#f0a500]" aria-hidden />
@@ -78,6 +80,7 @@ export function TechnicalDashboardPage() {
   const scopedFactories = selectedFactory ? [selectedFactory] : FACTORIES
   const scenarioActive = scenario !== 'NONE'
   const isFactorySelected = Boolean(selectedFactory)
+  const { fmtDateTime } = useDateFormat()
 
   const buffer = useMemo(() => {
     const rows = series.data ?? []
@@ -99,14 +102,15 @@ export function TechnicalDashboardPage() {
   const anomalyFeed = useMemo(() => {
     const feed = [...(anomalies.data ?? [])]
     const targetLabel = selectedFactory?.name ?? 'BOSB'
+    const nowStr = fmtDateTime(new Date())
 
     if (latestRatio != null && (latestRatio < 0.8 || latestRatio > 1.5)) {
       feed.unshift({
         id: `RN-${new Date().getMinutes()}${new Date().getSeconds()}`,
         factoryId: selectedFactoryId === 'ALL' ? 'bosb' : selectedFactoryId,
-        severity: latestRatio > 1.5 ? 'Kritik' : 'Uyari',
+        severity: latestRatio > 1.5 ? 'Kritik' : 'Uyarı',
         summary: `${targetLabel} Nexus oranı limit dışı: ${latestRatio.toFixed(2)} (hedef 0.8 - 1.5)`,
-        ts: new Date().toLocaleString('tr-TR'),
+        ts: nowStr,
       })
     }
     if (scenario === 'HIGH_WATER') {
@@ -115,20 +119,20 @@ export function TechnicalDashboardPage() {
         factoryId: selectedFactoryId === 'ALL' ? 'bosb' : selectedFactoryId,
         severity: 'Kritik',
         summary: `${targetLabel} için simülasyon: Yüksek Su Tüketimi`,
-        ts: new Date().toLocaleString('tr-TR'),
+        ts: nowStr,
       })
     }
     if (scenario === 'ENERGY_FLUCTUATION') {
       feed.unshift({
         id: `SIM-E-${new Date().getSeconds()}`,
         factoryId: selectedFactoryId === 'ALL' ? 'bosb' : selectedFactoryId,
-        severity: 'Uyari',
+        severity: 'Uyarı',
         summary: `${targetLabel} için simülasyon: Enerji Dalgalanması`,
-        ts: new Date().toLocaleString('tr-TR'),
+        ts: nowStr,
       })
     }
     return feed.slice(0, 5)
-  }, [anomalies.data, latestRatio, scenario, selectedFactory?.name])
+  }, [anomalies.data, fmtDateTime, latestRatio, scenario, selectedFactory?.name, selectedFactoryId])
 
   const crisisGlow = crisisLevel === 'orange' || crisisLevel === 'red'
   const sensorRows = series.data ?? []
@@ -164,7 +168,7 @@ export function TechnicalDashboardPage() {
       )}
     >
       <header className="space-y-s2">
-        <p className="font-mono text-[11px] uppercase tracking-[0.45em] text-slate">/dashboard-technical</p>
+        <p className="font-mono text-[11px] uppercase tracking-[0.45em] text-slate">/operasyon-konsolu</p>
         <div className="flex flex-wrap items-center justify-between gap-s3">
           <div>
             <h1 className="font-display text-4xl uppercase tracking-[0.2em]">Operasyon Konsolu</h1>
@@ -187,8 +191,8 @@ export function TechnicalDashboardPage() {
 
       <section
         className={cn(
-          'flex flex-wrap items-center justify-between gap-s3 rounded-xl border bg-card p-s4',
-          scenarioActive ? 'border-destructive/50 bg-red-soft/40' : 'border-border',
+          'glass-card flex flex-wrap items-center justify-between gap-s3 p-s4',
+          scenarioActive ? '!border-destructive/50 !bg-red-soft/40' : '',
         )}
       >
         <p className="font-mono text-sm tracking-[0.22em] text-slate">
@@ -199,9 +203,9 @@ export function TechnicalDashboardPage() {
         </Button>
       </section>
 
-      <section className="space-y-s4 rounded-xl border border-border bg-card p-s5 shadow-card">
+      <section className="glass-card space-y-s4 p-s5">
         <div className="flex items-center justify-between gap-s3">
-          <h2 className="font-semibold uppercase tracking-[0.35em] text-[#f0a500]">
+          <h2 className="font-semibold tracking-[0.12em] text-[#f0a500]">
             {isFactorySelected ? `${selectedFactory.name} Sensör Akışı` : 'Gerçek Zamanlı Sensör Akışı'}
           </h2>
           <span className="font-mono text-[11px] text-solar">
@@ -214,26 +218,26 @@ export function TechnicalDashboardPage() {
       <IoTGatewayPanel />
 
       {isFactorySelected ? (
-        <section className="space-y-s4 rounded-xl border border-border bg-card p-s5 shadow-card">
+        <section className="glass-card space-y-s4 p-s5">
           <div className="flex items-center justify-between gap-s3">
-            <h2 className="font-mono text-[11px] uppercase tracking-[0.45em] text-slate">BOSB Genel Teknik Görünüm</h2>
+            <h2 className="font-mono text-[11px] uppercase tracking-[0.12em] text-slate">BOSB Genel Teknik Görünüm</h2>
             <span className="text-xs text-slate">Fabrika verileri üstte önceliklendirildi</span>
           </div>
           <TechnicalLiveChart rows={bosbRows} thresholds={useThresholdStore.getState().getValues('ALL')} />
           <div className="grid gap-s3 md:grid-cols-3">
-            <article className="rounded-lg border border-border bg-elevated/50 p-s4">
+            <article className="glass-card p-s4">
               <p className="text-xs text-slate">BOSB Son Enerji</p>
               <p className="mt-s1 text-lg font-semibold text-energy">
                 {bosbRows.length ? bosbRows[bosbRows.length - 1].energy.toFixed(2) : '--'} kWh
               </p>
             </article>
-            <article className="rounded-lg border border-border bg-elevated/50 p-s4">
+            <article className="glass-card p-s4">
               <p className="text-xs text-slate">BOSB Son Su</p>
               <p className="mt-s1 text-lg font-semibold text-water">
                 {bosbRows.length ? bosbRows[bosbRows.length - 1].water.toFixed(2) : '--'} m³/h
               </p>
             </article>
-            <article className="rounded-lg border border-border bg-elevated/50 p-s4">
+            <article className="glass-card p-s4">
               <p className="text-xs text-slate">BOSB Ortalama Rn</p>
               <p className="mt-s1 text-lg font-semibold text-foreground">
                 {waterCutoff
@@ -275,20 +279,20 @@ export function TechnicalDashboardPage() {
       </section>
 
       <section className="grid gap-s4 xl:grid-cols-[minmax(0,1fr),320px]">
-        <article className="space-y-s3 rounded-xl border border-border bg-card p-s5 shadow-card">
+        <article className="space-y-s4 glass-card overflow-hidden border border-white/10 p-6">
           <div className="flex flex-wrap items-center justify-between gap-s3">
-            <h2 className="font-semibold uppercase tracking-[0.35em] text-slate">Son MQTT paketleri</h2>
+            <h2 className="font-semibold tracking-[0.12em] text-slate-100">Son MQTT Paketleri</h2>
             <span className="font-mono text-[11px] text-solar">Son 10 akış paketi</span>
           </div>
 
-          <div className="overflow-x-auto rounded-lg border border-border">
-            <table className="min-w-full border-collapse text-sm">
-              <thead className="bg-elevated text-left font-mono text-[11px] uppercase tracking-[0.35em] text-slate">
+          <div className="overflow-x-auto">
+            <table className="min-w-full border-collapse">
+              <thead className="bg-white/5 text-left font-mono text-xs uppercase tracking-wide text-cyan-400">
                 <tr>
-                  <th className="px-s4 py-s3">Ts</th>
-                  <th className="px-s4 py-s3">Enerji · kWh</th>
-                  <th className="px-s4 py-s3">Su Akışı · m³/h</th>
-                  <th className="px-s4 py-s3">Rn</th>
+                  <th className="px-s4 py-3 font-semibold">Zaman Damgası</th>
+                  <th className="px-s4 py-3 font-semibold">Enerji · kWh</th>
+                  <th className="px-s4 py-3 font-semibold">Su Akışı · m³/h</th>
+                  <th className="px-s4 py-3 font-semibold">Rn</th>
                 </tr>
               </thead>
               <tbody>
@@ -296,11 +300,14 @@ export function TechnicalDashboardPage() {
                   const rn = row.water > 0 ? (row.energy / row.water).toFixed(3) : '—'
 
                   return (
-                    <tr key={`${row.ts}-${index}`} className="border-t border-border">
-                      <td className="px-s4 py-s3 font-mono text-[12px] text-solar">{row.ts}</td>
-                      <td className="px-s4 py-s3 text-energy">{row.energy.toFixed(3)}</td>
-                      <td className="px-s4 py-s3 text-water">{row.water.toFixed(3)}</td>
-                      <td className="px-s4 py-s3">{rn}</td>
+                    <tr
+                      key={`${row.ts}-${index}`}
+                      className="border-b border-white/5 transition-colors hover:bg-white/[0.02]"
+                    >
+                      <td className="px-s4 py-4 font-mono text-[12px] text-solar">{row.ts}</td>
+                      <td className="px-s4 py-4 text-energy">{row.energy.toFixed(3)}</td>
+                      <td className="px-s4 py-4 text-water">{row.water.toFixed(3)}</td>
+                      <td className="px-s4 py-4 text-slate-100">{rn}</td>
                     </tr>
                   )
                 })}
@@ -316,14 +323,14 @@ export function TechnicalDashboardPage() {
           </div>
         </article>
 
-        <aside className="space-y-s3 rounded-xl border border-border bg-card p-s5 shadow-card">
+        <aside className="glass-card space-y-s3 p-s5">
           <div className="flex items-center justify-between gap-s3">
             <h2 className="font-semibold uppercase tracking-[0.35em] text-[#f0a500]">Son Anomaliler</h2>
             <AlertTriangle className="h-4 w-4 text-[#f0a500]" />
           </div>
           <div className="space-y-s2">
             {anomalyFeed.map((item) => (
-              <article key={item.id} className="rounded-lg border border-border bg-elevated/50 p-s3">
+              <article key={item.id} className="glass-card glass-card-hover p-s3">
                 <p className="font-mono text-[11px] uppercase tracking-[0.35em] text-slate">
                   {item.id} · <span className="text-energy">{item.severity}</span>
                 </p>

@@ -1,4 +1,3 @@
-import { Activity } from 'lucide-react'
 import { NavLink } from 'react-router-dom'
 
 import { cn } from '@/lib/utils'
@@ -8,14 +7,15 @@ import { useAuthStore } from '@/stores/auth-store'
 export function SideNav() {
   const role = useAuthStore((s) => s.user?.role ?? 'STRATEGIC')
   const links = resolveNav(role)
+  const roleLabel = role === 'STRATEGIC' ? 'Yönetici Paneli' : 'Operasyon Paneli'
 
   return (
     <nav
       aria-label="WEN görünüm menüsü"
-      className="flex h-full flex-col gap-s5 border-r border-border bg-card/92 px-s4 py-s6 text-sm backdrop-blur"
+      className="glass-sidebar flex h-full flex-col justify-between px-s4 py-s6 text-sm"
     >
       <div>
-        <p className="px-s2 pb-s3 font-mono text-[11px] uppercase tracking-[0.45em] text-slate">{role}-MOD</p>
+        <p className="px-s2 pb-s3 font-mono text-[11px] uppercase tracking-[0.12em] text-slate">{roleLabel}</p>
         <ul className="space-y-s1">
           {links.map(({ to, label, icon: Icon }) => (
             <li key={to}>
@@ -36,15 +36,6 @@ export function SideNav() {
             </li>
           ))}
         </ul>
-      </div>
-
-      <div className="mt-auto rounded-md border border-border bg-base/60 p-s3 text-xs text-slate">
-        <div className="flex items-center gap-s2">
-          <Activity className="h-4 w-4 text-solar" aria-hidden />
-          <p>
-            MQTT örnek akışı + Redis yedek hat senaryolarını <span className="text-foreground">Ayarlar</span> üzerinden aç.
-          </p>
-        </div>
       </div>
     </nav>
   )

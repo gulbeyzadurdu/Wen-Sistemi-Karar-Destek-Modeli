@@ -28,7 +28,7 @@ export function HistoricalPage() {
   return (
     <div className="space-y-s6">
       <header className="space-y-s2">
-        <p className="font-mono text-[11px] uppercase tracking-[0.45em] text-slate">/historical</p>
+        <p className="font-mono text-[11px] uppercase tracking-[0.45em] text-slate">/ham-veri</p>
         <h1 className="font-display text-4xl">Ham telemetri dış aktarım</h1>
         <p className="text-slate">MQTT mock demetini `.csv` olarak indirin — parquet desteği sonraki iterasyonda eklenecek.</p>
       </header>

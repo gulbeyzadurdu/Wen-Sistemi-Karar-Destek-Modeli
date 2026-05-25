@@ -2,7 +2,6 @@ import { create } from 'zustand'
 import { persist } from 'zustand/middleware'
 
 export type AlertScenario = 'NONE' | 'HIGH_WATER' | 'ENERGY_FLUCTUATION'
-export type Language = 'TR' | 'EN'
 export type DateTimeFormat = '24H' | '12H'
 export type TemperatureUnit = 'C' | 'F'
 
@@ -14,7 +13,6 @@ type NotificationSettings = {
 }
 
 type RegionalSettings = {
-  language: Language
   dateTimeFormat: DateTimeFormat
   temperatureUnit: TemperatureUnit
 }
@@ -59,7 +57,6 @@ export const useOpsStore = create<OpsState>()(
         })),
 
       regional: {
-        language: 'TR',
         dateTimeFormat: '24H',
         temperatureUnit: 'C',
       },

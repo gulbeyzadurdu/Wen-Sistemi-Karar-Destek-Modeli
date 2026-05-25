@@ -18,6 +18,8 @@ type CrisisState = {
   escalateToRed: () => void
   startKodKirmizi: () => void
   startWaterCutoff: () => void
+  /** Müdahale simülasyonu: orange + manualLock — resetSystem ile durdurulur */
+  startInterventionSimulation: (userId?: string) => void
   notifyTeamAck: boolean
   setNotifyTeamAck: (v: boolean) => void
   resolveIncident: () => void
@@ -29,7 +31,7 @@ type CrisisState = {
   clearNotificationLogs: () => void
   auditLogs: CrisisLogEntry[]
   appendAuditLog: (message: string) => void
-  /** Auto escalation from telemetry tier */
+  /** Auto escalation from telemetry tier — manualLock varsa hiç dokunmaz */
   hydrateFromTier: (tier: NexusTier) => void
 }
 
@@ -85,6 +87,19 @@ export const useCrisisStore = create<CrisisState>()(
           manualLock: true,
           auditLogs: [...state.auditLogs, buildLog('WATER_CUTOFF', 'Acil Su Kesintisi simülasyonu başlatıldı.')],
         })),
+      startInterventionSimulation: (userId = 'sistem') => {
+        const now = new Date()
+        const ts = [now.getHours(), now.getMinutes(), now.getSeconds()]
+          .map((n) => String(n).padStart(2, '0'))
+          .join(':')
+        const msg = `Kriz müdahalesi başarıyla başlatıldı - ${ts}`
+        set((state) => ({
+          level: 'orange',
+          manualLock: true,
+          notificationLogs: [...state.notificationLogs, buildLog('orange', msg)],
+          auditLogs: [...state.auditLogs, buildLog('orange', `[SİMÜLASYON] ${msg} · kullanıcı: ${userId}`)],
+        }))
+      },
       resolveIncident: () =>
         set((state) => ({
           level: 'none',
@@ -101,8 +116,9 @@ export const useCrisisStore = create<CrisisState>()(
           auditLogs: [...state.auditLogs, buildLog('none', 'Reset System komutu çalıştırıldı.')],
         })),
       hydrateFromTier: (tier) => {
-        const { manualLock, level } = get()
-        if (manualLock && (level === 'red' || level === 'KOD_KIRMIZI' || level === 'WATER_CUTOFF')) return
+        const { manualLock } = get()
+        // manualLock aktifse (simülasyon, KOD_KIRMIZI, WATER_CUTOFF vb.) telemetri seviyeyi ezmez
+        if (manualLock) return
 
         const nextLevel: CrisisLevelUI =
           tier === 'normal' ? 'none' : tier === 'warning' ? 'yellow' : tier === 'alert' ? 'orange' : 'orange'
