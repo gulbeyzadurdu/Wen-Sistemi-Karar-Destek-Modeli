@@ -3,20 +3,8 @@ import { FormEvent, useEffect, useState } from 'react'
 import { Navigate, useNavigate } from 'react-router-dom'
 
 import { Button } from '@/components/ui/button'
+import { login as apiLogin } from '@/lib/api-client'
 import { useAuthStore } from '@/stores/auth-store'
-import type { UserRole } from '@/types/wen'
-
-const MOCK_USERS: Record<
-  string,
-  {
-    password: string
-    role: UserRole
-    name: string
-  }
-> = {
-  'admin@bosb.gov.tr': { password: 'admin', role: 'STRATEGIC', name: 'Arif Yalçın' },
-  'operator@bosb.gov.tr': { password: 'operator', role: 'TECHNICAL', name: 'Emre Demir' },
-}
 
 export function LoginPage() {
   const navigate = useNavigate()
@@ -44,7 +32,7 @@ export function LoginPage() {
     return <Navigate to={home} replace />
   }
 
-  const handleSubmit = (event: FormEvent<HTMLFormElement>) => {
+  const handleSubmit = async (event: FormEvent<HTMLFormElement>) => {
     event.preventDefault()
     if (isLoading) return
 
@@ -61,23 +49,19 @@ export function LoginPage() {
     setShake(false)
     setIsLoading(true)
 
-    window.setTimeout(() => {
-      const account = MOCK_USERS[normalizedUsername]
-      const isValid = account && account.password === normalizedPassword
-
-      if (!isValid) {
-        setError('Kullanıcı adı veya şifre hatalı')
-        setShake(true)
-        setIsLoading(false)
-        return
-      }
-
-      login(account.role, account.name)
+    try {
+      const { role, name } = await apiLogin(normalizedUsername, normalizedPassword)
+      login(role, name)
       if (!rememberMe) {
         setPassword('')
       }
+    } catch (err) {
+      const message = err instanceof Error ? err.message : 'Bağlantı hatası'
+      setError(message)
+      setShake(true)
+    } finally {
       setIsLoading(false)
-    }, 900)
+    }
   }
 
   return (

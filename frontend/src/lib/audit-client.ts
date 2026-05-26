@@ -1,14 +1,20 @@
+import { putCrisisAudit } from '@/lib/api-client'
+
 export type ChecklistAuditPayload = {
   step_id: string
   timestamp: string
   user_id: string
 }
 
-/** Mock PUT for Kod Kırmızı audit trail until FastAPI exposes `/v1/crisis/audit`. */
+/** PUT /crisis/audit — kriz protokol adımını backend'e kaydeder.
+ *  Hata durumunda sessizce geçer; uygulama akışını asla patlatmaz. */
 export async function putChecklistAudit(payload: ChecklistAuditPayload): Promise<{ ok: true }> {
-  await new Promise((r) => setTimeout(r, 140))
-  if (import.meta.env.DEV) {
-    console.info('[AUDIT MOCK PUT] /v1/crisis/audit', payload)
+  try {
+    await putCrisisAudit(payload)
+  } catch (err) {
+    if (import.meta.env.DEV) {
+      console.warn('[AUDIT] PUT /v1/crisis/audit başarısız (sessizce geçiliyor):', err)
+    }
   }
   return { ok: true }
 }

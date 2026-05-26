@@ -15,6 +15,14 @@ class Settings(BaseSettings):
         default="postgresql+asyncpg://wen:wen_dev@localhost:5432/wen",
         description="Async SQLAlchemy URL (Timescale/Postgres).",
     )
+    secret_key: str = Field(
+        default="change-me-in-production",
+        description="HS256 JWT signing secret — set SECRET_KEY env var.",
+    )
+    access_token_expire_minutes: int = Field(
+        default=60,
+        description="JWT access token lifetime in minutes.",
+    )
     redis_url: str = "redis://localhost:6379/0"
 
     @property

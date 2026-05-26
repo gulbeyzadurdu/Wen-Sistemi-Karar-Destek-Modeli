@@ -120,3 +120,138 @@ Basit bir kural motoru (Rule Engine) ile:
 - [ ] Bursa OSB (BOSB) pilot tesisi için simülasyon verileri başarıyla üretiliyor mu?
 - [ ] Kod Kırmızı protokolü devreye girdiğinde ilgili personele e-posta gidiyor mu?
 - [ ] PDF formatındaki ESG Raporu, Yeşil Mutabakat standartlarına uygun veriyi içeriyor mu?
+
+erDiagram
+
+    users {
+        uuid id PK "gen_random_uuid()"
+        text email UK "NOT NULL"
+        text password_hash "NOT NULL — Argon2id"
+        text role "CHECK: STRATEGIC | TECHNICAL"
+        text name "NOT NULL"
+        text department
+        text phone
+        timestamptz last_login
+        int login_count "DEFAULT 0"
+        timestamptz created_at "DEFAULT now()"
+    }
+
+    factories {
+        text id PK "örn: tekstil-a"
+        text name "NOT NULL"
+        text status "CHECK: Online | Offline | Warning"
+        float8 nexus_ratio "DEFAULT 1.0"
+        float8 energy_consumption "kWh"
+        float8 water_consumption "m3"
+        timestamptz updated_at "DEFAULT now()"
+    }
+
+    sensors {
+        uuid id PK "gen_random_uuid()"
+        text factory_id FK "→ factories.id"
+        text sensor_type "CHECK: ENERGY | WATER | COMBINED"
+        text label
+        bool is_active "DEFAULT true"
+        timestamptz created_at "DEFAULT now()"
+    }
+
+    telemetry_data {
+        timestamptz time PK "NOT NULL — TimescaleDB partition key"
+        uuid sensor_id PK "FK → sensors.id"
+        float8 water_value "m3/h — DEFAULT 0"
+        float8 energy_value "kWh — DEFAULT 0"
+        float8 nexus_ratio "GENERATED: energy/water — null if water=0"
+        bool anomaly_flag "DEFAULT false"
+    }
+
+    thresholds {
+        uuid id PK "gen_random_uuid()"
+        text factory_id FK "→ factories.id"
+        uuid created_by FK "→ users.id"
+        float8 energy_min "DEFAULT 8.4"
+        float8 energy_max "DEFAULT 18.25"
+        float8 water_min "DEFAULT 8.08"
+        float8 water_max "DEFAULT 12.92"
+        text alert_type "CHECK: APP | EMAIL | BOTH"
+        bool is_active "DEFAULT true"
+        timestamptz created_at "DEFAULT now()"
+        timestamptz updated_at "DEFAULT now()"
+    }
+
+    anomalies {
+        uuid id PK "gen_random_uuid()"
+        text anomaly_code UK "örn: ANM-TEK-921"
+        text factory_id FK "→ factories.id"
+        uuid sensor_id FK "→ sensors.id — nullable"
+        text severity "CHECK: Kritik | Turuncu | Sari | Yesil | Uyari"
+        text summary "NOT NULL"
+        bool is_resolved "DEFAULT false"
+        timestamptz resolved_at
+        timestamptz created_at "DEFAULT now()"
+    }
+
+    crisis_events {
+        uuid id PK "gen_random_uuid()"
+        uuid actor_id FK "→ users.id"
+        text level "CHECK: yellow | orange | red | KOD_KIRMIZI | WATER_CUTOFF"
+        bool manual_lock "DEFAULT false"
+        bool is_simulation "DEFAULT false"
+        text resolution_note
+        timestamptz started_at "DEFAULT now()"
+        timestamptz resolved_at
+    }
+
+    crisis_audit_logs {
+        uuid id PK "gen_random_uuid()"
+        uuid crisis_event_id FK "→ crisis_events.id"
+        uuid user_id FK "→ users.id"
+        text step_id "örn: orange-step-1"
+        text message "NOT NULL"
+        text level_snapshot "seviye anlık değeri"
+        timestamptz ts "DEFAULT now()"
+    }
+
+    simulation_runs {
+        uuid id PK "gen_random_uuid()"
+        uuid triggered_by FK "→ users.id"
+        text scenario_key "örn: high_water | low_energy | nexus_spike"
+        text status "CHECK: running | completed | aborted"
+        jsonb result_snapshot "simülasyon sonu anlık veri"
+        timestamptz started_at "DEFAULT now()"
+        timestamptz ended_at
+    }
+
+    notifications {
+        uuid id PK "gen_random_uuid()"
+        uuid user_id FK "→ users.id"
+        text title "NOT NULL"
+        text body
+        text type "CHECK: crisis | simulation | anomaly | system"
+        bool is_read "DEFAULT false"
+        timestamptz created_at "DEFAULT now()"
+    }
+
+    refresh_tokens {
+        uuid id PK "gen_random_uuid()"
+        uuid user_id FK "→ users.id"
+        text token_hash UK "NOT NULL"
+        timestamptz expires_at "NOT NULL"
+        bool revoked "DEFAULT false"
+        timestamptz created_at "DEFAULT now()"
+    }
+
+    users ||--o{ thresholds : "oluşturur"
+    users ||--o{ crisis_events : "tetikler"
+    users ||--o{ crisis_audit_logs : "yazar"
+    users ||--o{ simulation_runs : "başlatır"
+    users ||--o{ notifications : "alır"
+    users ||--o{ refresh_tokens : "sahiptir"
+
+    factories ||--o{ sensors : "içerir"
+    factories ||--o{ thresholds : "için tanımlı"
+    factories ||--o{ anomalies : "üretir"
+
+    sensors ||--o{ telemetry_data : "üretir"
+    sensors ||--o{ anomalies : "ilişkili"
+
+    crisis_events ||--o{ crisis_audit_logs : "içerir"

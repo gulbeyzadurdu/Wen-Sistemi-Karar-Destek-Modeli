@@ -6,13 +6,14 @@ from fastapi.middleware.cors import CORSMiddleware
 
 from app.api.v1.router import api_v1_router
 from app.core.config import get_settings
+from app.db import engine, init_db
 
 
 @asynccontextmanager
 async def lifespan(_app: FastAPI) -> AsyncIterator[None]:
-    # Phase 1+: create async engine, Redis, MQTT here
+    await init_db()
     yield
-    # shutdown: dispose clients
+    await engine.dispose()
 
 
 def create_app() -> FastAPI:

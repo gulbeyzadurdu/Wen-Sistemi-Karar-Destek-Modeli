@@ -42,7 +42,7 @@ Giriş ekranında aşağıdaki hesaplardan birini kullanın:
 
 ## Tam Kurulum (Backend + Altyapı)
 
-Backend henüz aktif olarak frontend'e bağlanmadığı için zorunlu değildir. Yine de denemek isterseniz:
+Backend artık JWT kimlik doğrulama, telemetri ve kriz audit uç noktalarıyla işlevsel durumdadır. Frontend, gerçek API'ye bağlanır; hata veya auth yoksa mock veriye fallback yapar.
 
 1. Kökte `.env` oluşturun: `copy .env.example .env`
 2. Altyapıyı başlatın: `docker compose up -d` (TimescaleDB/PostgreSQL 15, Redis, Mosquitto)
@@ -51,13 +51,36 @@ Backend henüz aktif olarak frontend'e bağlanmadığı için zorunlu değildir.
    - `pip install -r requirements.txt`
    - `uvicorn app.main:app --reload --host 0.0.0.0 --port 8000`
    - Sağlık kontrolü: [GET /v1/health](http://127.0.0.1:8000/v1/health)
+   - Swagger UI: [http://127.0.0.1:8000/docs](http://127.0.0.1:8000/docs)
+
+### Backend API Uç Noktaları
+
+| Uç Nokta | Açıklama |
+|----------|----------|
+| `POST /v1/auth/login` | Email + şifre → HS256 JWT token |
+| `GET /v1/auth/me` | Bearer token ile oturumdaki kullanıcı bilgisi |
+| `GET /v1/telemetry/live` | Anlık telemetri paketi (enerji / su / nexus oranı) |
+| `GET /v1/telemetry/history?points=N` | Geçmiş N dakikalık telemetri listesi |
+| `PUT /v1/crisis/audit` | Kriz protokol adımını audit tablosuna kaydet |
+
+---
+
+## Frontend ↔ Backend Entegrasyonu
+
+`frontend/src/lib/api-client.ts` gerçek API istemcisini sağlar. Her uç nokta için **önce backend denenir, hata veya auth yoksa mock veriye otomatik fallback** yapılır — bu sayede backend olmadan demo çalışmaya devam eder.
+
+| Kaynak | Davranış |
+|--------|----------|
+| `useLiveTelemetry` / `useTechnicalSeries` | Backend `/telemetry/live` ve `/telemetry/history` → başarısız olursa mock simülatör |
+| `LoginPage` | Backend `/auth/login` → başarısız olursa mock JWT |
+| `audit-client` | Backend `/crisis/audit` PUT → başarısız olursa sessiz mock |
 
 ---
 
 ## Teknoloji Yığını
 
 - **Frontend:** React 19 + TypeScript + Vite, Tailwind CSS, Zustand, TanStack Query, Recharts, lucide-react, react-router-dom v7
-- **Backend (iskelet):** FastAPI (Python 3.11+), Uvicorn
+- **Backend:** FastAPI (Python 3.11+), Uvicorn, async SQLAlchemy 2.0, asyncpg, passlib[argon2], python-jose
 - **Altyapı:** TimescaleDB / PostgreSQL 15, Redis, Mosquitto (MQTT)
 
 ## Proje Belgeleri
