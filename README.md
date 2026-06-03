@@ -1,6 +1,6 @@
 # WEN Sistemi — Su–Enerji Nexus Karar Destek Paneli
 
-Endüstriyel Su–Enerji Nexus karar destek arayüzü. Stratejik (yönetici) ve Teknik (operasyon) rolleri için, canlı telemetri simülasyonu, çok katmanlı kriz protokolü (Sarı / Turuncu / Kod Kırmızı / Acil Su Kesintisi), ESG çıktıları ve fabrika bazlı izleme akışı sunar.
+Endüstriyel Su–Enerji Nexus karar destek arayüzü. Stratejik (yönetici) ve Teknik (operasyon) rolleri için canlı telemetri simülasyonu, çok katmanlı kriz protokolü (Sarı / Turuncu / Kod Kırmızı / Acil Su Kesintisi), yapay zeka destekli analiz & raporlama ve fabrika bazlı izleme sunar.
 
 ---
 
@@ -19,38 +19,43 @@ Tarayıcıda açın: **http://localhost:5173**
 
 ### Test Kullanıcıları (Mock JWT)
 
-Giriş ekranında aşağıdaki hesaplardan birini kullanın:
-
-| Rol | Kullanıcı Adı | Şifre | Erişim |
+| Rol | E-posta | Şifre | Erişim |
 |---|---|---|---|
-| **Stratejik (Yönetici)** | `admin@bosb.gov.tr` | `admin` | Stratejik panel, Trend analizi, ESG raporu, Bildirimler |
+| **Stratejik (Yönetici)** | `admin@bosb.gov.tr` | `admin` | Stratejik panel, Trend grafiği, AI Analiz & Rapor, Bildirimler |
 | **Teknik (Operasyon)** | `operator@bosb.gov.tr` | `operator` | Operasyon paneli, Ham veri, Anomaliler |
 
-> Her iki rol de `/crisis`, `/simulations` ve `/settings` ekranlarına erişebilir. Oturum bilgisi `localStorage` üzerinde tutulur; `Ayarlar → Oturumu kapat` ile temizlenir.
+> Her iki rol de `/crisis`, `/simulations` ve `/settings` ekranlarına erişebilir.
 
 ---
 
 ## Ne Test Edebilirsiniz?
 
-- **Stratejik panel:** KPI kartları, dinamik Nexus Gauge (Rₙ = Eₜ / Wₜ), 6 aylık ESG trend grafiği, fabrika seçimi (BOSB geneli ↔ tek fabrika), maliyet & karbon ayak izi tahmini.
-- **Operasyon paneli:** MQTT mock canlı çoklu eksen grafik, eşik referans çizgileri, sensör spark-line kartları (pompa / vana / basınç), son 10 paket tablosu, anomali akışı.
-- **Kriz protokolü (`/crisis`):** Seviye makinesi (Sarı → Turuncu hazırlık checklist'i → Kod Kırmızı sıralı aksiyon checklist'i), her adım için audit mock PUT.
-- **Simülasyon Merkezi (`/simulations`):** "Yüksek Su Tüketimi", "Enerji Dalgalanması", "Kod Kırmızı" ve "Acil Su Kesintisi" senaryolarını manuel tetikleme; sahaya bildirim akışı simülasyonu.
-- **Ayarlar (`/settings`):** Eşik kaydırıcıları (fabrika bazlı), bildirim/bölge/dil seçenekleri, MQTT bağlantı simülasyonu (Online ↔ Redis fallback), açık/koyu tema.
+- **Stratejik panel:** KPI kartları, dinamik Nexus Gauge (Rₙ = Eₜ / Wₜ), 6 aylık Enerji & Su trendi (fabrikaya göre değişen statik referans), maliyet & karbon ayak izi tahmini.
+- **AI Anlık Analiz:** Mevcut telemetri verisine göre yapay zeka destekli değerlendirme ve aksiyon önerisi (JSON göstergesi yok, okunabilir kart tasarımı).
+- **AI Faaliyet Raporu:** Haftalık veya aylık, Türk kamu kurumları faaliyet raporu formatında AI raporu (Yönetici Özeti · Bulgular · Risk Değerlendirmesi · Öneriler · Mevzuat Uyumu).
+- **AI Chatbot:** Dashboard'daki anlık Nexus oranı, enerji/su değerleri, kriz seviyesi ve trend verisini okuyabilen bağlam-duyarlı asistan. Kullanıcı adıyla kişisel karşılama.
+- **Operasyon paneli:** MQTT mock canlı çoklu eksen grafik, eşik çizgileri, sensör spark-line kartları, son 10 paket tablosu, anomali akışı.
+- **Kriz protokolü (`/crisis`):** Sarı → Turuncu checklist → Kod Kırmızı sıralı aksiyon, müdahale simülasyonu (Web Audio API alarm sesi), her adım için audit mock PUT.
+- **Kriz debounce:** Uyarı ve başlık durum göstergesi yalnızca ~48 sn süren anormallikte yükselir; anlık spike'lar tetiklemez.
+- **Simülasyon Merkezi (`/simulations`):** "Yüksek Su Tüketimi", "Enerji Dalgalanması", "Kod Kırmızı" ve "Acil Su Kesintisi" senaryoları.
+- **Ayarlar (`/settings`):** Eşik kaydırıcıları, bildirim/bölge seçenekleri, MQTT simülasyonu, açık/koyu tema.
 
 ---
 
 ## Tam Kurulum (Backend + Altyapı)
 
-Backend artık JWT kimlik doğrulama, telemetri ve kriz audit uç noktalarıyla işlevsel durumdadır. Frontend, gerçek API'ye bağlanır; hata veya auth yoksa mock veriye fallback yapar.
+Backend JWT kimlik doğrulama, telemetri, kriz audit ve AI uç noktalarıyla işlevseldir. Frontend hata veya auth yoksa mock veriye otomatik fallback yapar.
 
 1. Kökte `.env` oluşturun: `copy .env.example .env`
 2. Altyapıyı başlatın: `docker compose up -d` (TimescaleDB/PostgreSQL 15, Redis, Mosquitto)
 3. **Backend** (`/backend`):
-   - `python -m venv .venv` ve `.\.venv\Scripts\activate` (Windows)
-   - `pip install -r requirements.txt`
-   - `uvicorn app.main:app --reload --host 0.0.0.0 --port 8000`
-   - Sağlık kontrolü: [GET /v1/health](http://127.0.0.1:8000/v1/health)
+   ```powershell
+   cd backend
+   python -m venv .venv
+   .\.venv\Scripts\activate
+   pip install -r requirements.txt
+   uvicorn app.main:app --reload --host 0.0.0.0 --port 8000
+   ```
    - Swagger UI: [http://127.0.0.1:8000/docs](http://127.0.0.1:8000/docs)
 
 ### Backend API Uç Noktaları
@@ -62,25 +67,32 @@ Backend artık JWT kimlik doğrulama, telemetri ve kriz audit uç noktalarıyla 
 | `GET /v1/telemetry/live` | Anlık telemetri paketi (enerji / su / nexus oranı) |
 | `GET /v1/telemetry/history?points=N` | Geçmiş N dakikalık telemetri listesi |
 | `PUT /v1/crisis/audit` | Kriz protokol adımını audit tablosuna kaydet |
+| `GET /v1/ai/summary` | AI destekli anlık telemetri özeti |
+| `GET /v1/ai/report?period=weekly\|monthly` | Kamu kurumu formatında haftalık/aylık faaliyet raporu |
+| `POST /v1/ai/chat` | Dashboard bağlamını okuyan AI sohbet asistanı |
+
+### AI Modülü
+
+`OPENROUTER_API_KEY` ve `AI_MODEL` değişkenleri `.env`'de tanımlanır. Varsayılan model: `google/gemini-2.5-flash-lite`. OpenRouter BYOK ile Google AI Studio ücretsiz kotası kullanılabilir.
 
 ---
 
 ## Frontend ↔ Backend Entegrasyonu
 
-`frontend/src/lib/api-client.ts` gerçek API istemcisini sağlar. Her uç nokta için **önce backend denenir, hata veya auth yoksa mock veriye otomatik fallback** yapılır — bu sayede backend olmadan demo çalışmaya devam eder.
-
 | Kaynak | Davranış |
 |--------|----------|
-| `useLiveTelemetry` / `useTechnicalSeries` | Backend `/telemetry/live` ve `/telemetry/history` → başarısız olursa mock simülatör |
+| `useLiveTelemetry` / `useTechnicalSeries` | Backend `/telemetry/*` → başarısız olursa mock simülatör |
 | `LoginPage` | Backend `/auth/login` → başarısız olursa mock JWT |
 | `audit-client` | Backend `/crisis/audit` PUT → başarısız olursa sessiz mock |
+| `AiSummaryCard` / `AiReportCard` / `ChatBot` | Backend `/ai/*` → başarısız olursa hata mesajı |
 
 ---
 
 ## Teknoloji Yığını
 
 - **Frontend:** React 19 + TypeScript + Vite, Tailwind CSS, Zustand, TanStack Query, Recharts, lucide-react, react-router-dom v7
-- **Backend:** FastAPI (Python 3.11+), Uvicorn, async SQLAlchemy 2.0, asyncpg, passlib[argon2], python-jose
+- **Backend:** FastAPI (Python 3.11+), Uvicorn, async SQLAlchemy 2.0, asyncpg, passlib[argon2], python-jose, httpx
+- **AI:** OpenRouter API (google/gemini-2.5-flash-lite) — anlık özet, dönemsel rapor, bağlam-duyarlı chatbot
 - **Altyapı:** TimescaleDB / PostgreSQL 15, Redis, Mosquitto (MQTT)
 
 ## Proje Belgeleri

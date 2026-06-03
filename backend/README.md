@@ -1,12 +1,12 @@
 # WEN API (FastAPI)
 
-> ⚠️ **Test edenler için not:** Frontend tamamen mock veri ile çalışabilir; demo için backend'i çalıştırmanız **zorunlu değildir**. Yalnızca `/frontend` klasöründen `npm install && npm run dev` yeterlidir. Ancak backend artık gerçek JWT kimlik doğrulama, telemetri ve kriz audit uç noktalarıyla tam işlevsel bir API sunmaktadır.
+> ⚠️ **Test edenler için not:** Frontend tamamen mock veri ile çalışabilir; demo için backend'i çalıştırmanız **zorunlu değildir**. Yalnızca `/frontend` klasöründen `npm install && npm run dev` yeterlidir. Ancak backend artık gerçek JWT kimlik doğrulama, telemetri, kriz audit ve AI uç noktalarıyla tam işlevsel bir API sunmaktadır.
 
 ---
 
 ## Çalıştırma
 
-```bash
+```powershell
 cd backend
 python -m venv .venv
 .\.venv\Scripts\activate        # Windows PowerShell
@@ -61,6 +61,18 @@ Swagger UI: [http://127.0.0.1:8000/docs](http://127.0.0.1:8000/docs)
 { "step_id": "orange-step-1", "timestamp": "2026-05-26T12:00:00Z", "user_id": "<uuid>" }
 ```
 
+### AI (`/v1/ai`) — Bearer token gerektirir
+
+| Metot | Yol | Açıklama |
+|-------|-----|----------|
+| `GET` | `/v1/ai/summary` | Anlık telemetri verisiyle AI destekli değerlendirme ve aksiyon önerisi |
+| `GET` | `/v1/ai/report?period=weekly\|monthly` | Kamu kurumu formatında dönemsel faaliyet raporu |
+| `POST` | `/v1/ai/chat` | Dashboard bağlamını (enerji/su/Rₙ/kriz/trend) okuyan AI sohbet asistanı |
+
+**AI modeli:** `google/gemini-2.5-flash-lite` (OpenRouter üzerinden). `.env`'deki `AI_MODEL` ile değiştirilebilir.
+
+**OpenRouter BYOK:** Google AI Studio API key'ini [openrouter.ai/settings/integrations](https://openrouter.ai/settings/integrations) → Provider Keys → Google AI Studio bölümüne ekleyerek Google'ın ücretsiz kotasını kullanabilirsiniz.
+
 ---
 
 ## Veritabanı Katmanı
@@ -107,6 +119,8 @@ Kökteki `.env` dosyası kullanılır (örnek için kök `.env.example`). Öneml
 | `ACCESS_TOKEN_EXPIRE_MINUTES` | `60` | JWT ömrü (dakika) |
 | `CORS_ORIGINS` | `http://localhost:5173` | Frontend dev sunucusu için virgülle ayrılmış origin'ler |
 | `REDIS_URL` | `redis://localhost:6379/0` | Redis bağlantı URL'i |
+| `OPENROUTER_API_KEY` | — | OpenRouter API anahtarı (AI uç noktaları için zorunlu) |
+| `AI_MODEL` | `google/gemini-2.5-flash-lite` | OpenRouter model slug'ı |
 
 ---
 
@@ -126,3 +140,4 @@ Kökteki `.env` dosyası kullanılır (örnek için kök `.env.example`). Öneml
 - **RORO** örneği: `app/services/health.py` + `POST /v1/health` gövdesi
 - **Fonksiyonel router** yapısı: `app/api/v1/`
 - `app/api/deps.py` — tüm router'lar arasında paylaşılan bağımlılıklar
+- AI modülü (`app/api/v1/routes/ai.py`) — OpenRouter üzerinden Gemini entegrasyonu; JSON fence soyma, bağlam enjeksiyonu, markdown kod bloğu parse desteği

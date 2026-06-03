@@ -57,12 +57,16 @@ export type LoginResult = {
  * Decode edip { sub, role, name } döner.
  */
 export async function login(email: string, password: string): Promise<LoginResult> {
+  const form = new URLSearchParams()
+  form.append('username', email)
+  form.append('password', password)
+
   const data = await request<{ access_token: string; token_type: string }>(
     '/auth/login',
     {
       method: 'POST',
-      headers: { 'Content-Type': 'application/json' },
-      body: JSON.stringify({ email, password }),
+      headers: { 'Content-Type': 'application/x-www-form-urlencoded' },
+      body: form.toString(),
     },
   )
 
@@ -138,5 +142,87 @@ export async function putCrisisAudit(payload: CrisisAuditPayload): Promise<{ ok:
     method: 'PUT',
     headers: { 'Content-Type': 'application/json', ...authHeaders() },
     body: JSON.stringify(payload),
+  })
+}
+
+// ---------------------------------------------------------------------------
+// AI endpoints
+// ---------------------------------------------------------------------------
+
+export type AiSummaryResult = {
+  summary: string
+  risk_level: string | null
+  action: string | null
+}
+
+export type AiReportResult = {
+  period: 'weekly' | 'monthly'
+  period_label: string
+  report_date: string
+  risk_level: string | null
+  executive_summary: string
+  findings: string[]
+  risk_assessment: string
+  recommendations: string[]
+  compliance_note: string
+}
+
+export type AiChatResult = {
+  reply: string
+}
+
+export type DashboardContext = {
+  energy_kwh?: number
+  water_m3?: number
+  nexus_ratio?: number
+  anomaly_flag?: boolean
+  crisis_level?: string
+  selected_factory?: string
+  trend_data?: { month: string; energy: number; water: number }[]
+}
+
+/** GET /ai/summary — anlık telemetri verisiyle AI özeti. */
+export async function getAiSummary(params: {
+  energy_value: number
+  water_value: number
+  nexus_ratio: number
+  anomaly_flag: boolean
+}): Promise<AiSummaryResult> {
+  const qs = new URLSearchParams({
+    energy_value: String(params.energy_value),
+    water_value: String(params.water_value),
+    nexus_ratio: String(params.nexus_ratio),
+    anomaly_flag: String(params.anomaly_flag),
+  })
+  return request<AiSummaryResult>(`/ai/summary?${qs.toString()}`, { headers: authHeaders() })
+}
+
+/** GET /ai/report — haftalık veya aylık AI faaliyet raporu. */
+export async function getAiReport(params: {
+  period: 'weekly' | 'monthly'
+  energy_value: number
+  water_value: number
+  nexus_ratio: number
+  anomaly_flag: boolean
+}): Promise<AiReportResult> {
+  const qs = new URLSearchParams({
+    period: params.period,
+    energy_value: String(params.energy_value),
+    water_value: String(params.water_value),
+    nexus_ratio: String(params.nexus_ratio),
+    anomaly_flag: String(params.anomaly_flag),
+  })
+  return request<AiReportResult>(`/ai/report?${qs.toString()}`, { headers: authHeaders() })
+}
+
+/** POST /ai/chat — serbest metin chatbot. İsteğe bağlı dashboard context ile modele bağlam sağlar. */
+export async function getChatResponse(
+  message: string,
+  context?: DashboardContext,
+): Promise<AiChatResult> {
+  return request<AiChatResult>('/ai/chat', {
+    method: 'POST',
+    headers: { 'Content-Type': 'application/json', ...authHeaders() },
+    body: JSON.stringify({ message, context }),
   })
 }

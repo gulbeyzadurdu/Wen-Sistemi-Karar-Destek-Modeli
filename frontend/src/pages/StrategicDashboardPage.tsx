@@ -1,6 +1,8 @@
 import { Activity, Droplets, Layers3, TrendingUp, Zap } from 'lucide-react'
 import { type ComponentType, useMemo } from 'react'
 
+import { AiReportCard } from '@/components/ai/AiReportCard'
+import { AiSummaryCard } from '@/components/ai/AiSummaryCard'
 import { NexusGauge } from '@/components/charts/NexusGauge'
 import { StrategicTrendChart } from '@/components/charts/StrategicTrendChart'
 import { FactorySelector } from '@/components/factories/FactorySelector'
@@ -116,8 +118,10 @@ export function StrategicDashboardPage() {
     })
   }
 
-  const sixMonthData = useMemo(() => buildTrendData(energy || baselineEnergy, water || baselineWater), [energy, water, baselineEnergy, baselineWater])
-  const bosbSixMonthData = useMemo(() => buildTrendData(bosbEnergy || bosbEnergyBase, bosbWater || bosbWaterBase), [bosbEnergy, bosbWater, bosbEnergyBase, bosbWaterBase])
+  // Trend grafiği canlı telemetriden değil, fabrikaya ait statik baseline'dan üretilir.
+  // Böylece 12 saniyelik telemetri döngüsüyle değişmez; yalnızca fabrika seçimi değiştiğinde güncellenir.
+  const sixMonthData = useMemo(() => buildTrendData(baselineEnergy, baselineWater), [baselineEnergy, baselineWater])
+  const bosbSixMonthData = useMemo(() => buildTrendData(bosbEnergyBase, bosbWaterBase), [bosbEnergyBase, bosbWaterBase])
 
   const avgEnergy = sixMonthData.reduce((acc, row) => acc + row.energy, 0) / sixMonthData.length
   const estimatedCost = avgEnergy * 0.145 * 30
@@ -196,6 +200,20 @@ export function StrategicDashboardPage() {
         />
       </section>
 
+      <AiSummaryCard
+        energyValue={energy}
+        waterValue={water}
+        nexusRatio={Number.isFinite(effectiveRatio) ? effectiveRatio : (ratio ?? ratioForUi)}
+        anomalyFlag={tier === 'alert' || tier === 'critical'}
+      />
+
+      <AiReportCard
+        energyValue={energy}
+        waterValue={water}
+        nexusRatio={Number.isFinite(effectiveRatio) ? effectiveRatio : (ratio ?? ratioForUi)}
+        anomalyFlag={tier === 'alert' || tier === 'critical'}
+      />
+
       {isFactorySelected ? (
         <section className="glass-card space-y-s4 p-s5">
           <div className="flex items-center justify-between gap-s3">
@@ -227,17 +245,10 @@ export function StrategicDashboardPage() {
               icon={Activity}
             />
           </div>
-          <article className="glass-card p-s5">
-            <div className="mb-s3 flex items-center justify-between gap-s3">
-              <h3 className="font-mono text-[11px] uppercase tracking-[0.12em] text-slate">BOSB Trend Analizi (6 Ay)</h3>
-              <span className="text-xs text-[#22a7d8]">Enerji ve Su</span>
-            </div>
-            <StrategicTrendChart rows={bosbSixMonthData} />
-            <div className="mt-s4 grid gap-s3 md:grid-cols-2">
-              <p className="text-xs text-slate">Maliyet Tahmini: <span className="text-foreground">~ {bosbEstimatedCost.toFixed(0)} USD / ay</span></p>
-              <p className="text-xs text-slate">Karbon Ayak İzi: <span className="text-foreground">~ {bosbCarbonFootprint.toFixed(2)} tCO2e</span></p>
-            </div>
-          </article>
+          <div className="grid gap-s3 md:grid-cols-2">
+            <p className="text-xs text-slate">BOSB Maliyet Tahmini: <span className="text-foreground">~ {bosbEstimatedCost.toFixed(0)} USD / ay</span></p>
+            <p className="text-xs text-slate">BOSB Karbon Ayak İzi: <span className="text-foreground">~ {bosbCarbonFootprint.toFixed(2)} tCO2e</span></p>
+          </div>
         </section>
       ) : null}
 
@@ -253,8 +264,8 @@ export function StrategicDashboardPage() {
         <div className="space-y-s4">
           <article className="glass-card p-s5">
             <div className="mb-s3 flex items-center justify-between gap-s3">
-              <h2 className="font-mono text-[11px] uppercase tracking-[0.12em] text-slate">ESG Trend Analizi (6 Ay)</h2>
-              <span className="text-xs text-[#22a7d8]">Enerji ve Su</span>
+              <h2 className="font-mono text-[11px] uppercase tracking-[0.12em] text-slate">Enerji & Su Trendi (6 Ay)</h2>
+              <span className="text-xs text-[#22a7d8]">{scopeLabel}</span>
             </div>
             <StrategicTrendChart rows={sixMonthData} />
           </article>

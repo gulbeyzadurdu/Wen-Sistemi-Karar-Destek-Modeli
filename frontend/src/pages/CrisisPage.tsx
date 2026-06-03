@@ -2,6 +2,7 @@ import { Megaphone, PlayCircle, ShieldOff } from 'lucide-react'
 
 import { ProtocolChecklist, type ChecklistStep } from '@/components/crisis/ProtocolChecklist'
 import { Button } from '@/components/ui/button'
+import { playAlarmTone } from '@/lib/alarm'
 import { cn } from '@/lib/utils'
 import { useAuthStore } from '@/stores/auth-store'
 import { useCrisisStore } from '@/stores/crisis-store'
@@ -29,7 +30,7 @@ export function CrisisPage() {
   const userId = useAuthStore((auth) => auth.user?.id ?? 'guest')
 
   const handleInterventionSimulation = () => {
-    new Audio('https://assets.mixkit.co/active_storage/sfx/2568/2568-84.wav').play().catch(() => {})
+    playAlarmTone(0.12)
     startInterventionSimulation(userId)
   }
 

@@ -24,6 +24,8 @@ class Settings(BaseSettings):
         description="JWT access token lifetime in minutes.",
     )
     redis_url: str = "redis://localhost:6379/0"
+    openrouter_api_key: str = Field(default="", description="OpenRouter API key for AI integration")
+    ai_model: str = Field(default="google/gemini-2.5-flash-lite", description="OpenRouter model identifier")
 
     @property
     def cors_origins_list(self) -> list[str]:

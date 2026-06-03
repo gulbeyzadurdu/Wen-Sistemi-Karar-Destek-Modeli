@@ -1,11 +1,14 @@
 import { ShieldAlert, Volume2, VolumeX } from 'lucide-react'
+import { useEffect } from 'react'
 import { Outlet } from 'react-router-dom'
 
+import { ChatBot } from '@/components/chat/ChatBot'
 import { CrisisStrip } from '@/components/layout/CrisisStrip'
 import { DataOfflineBanner } from '@/components/layout/DataOfflineBanner'
 import { GlobalHeader } from '@/components/layout/GlobalHeader'
 import { MobileNav } from '@/components/layout/MobileNav'
 import { SideNav } from '@/components/layout/SideNav'
+import { startAlarmLoop } from '@/lib/alarm'
 import { cn } from '@/lib/utils'
 import { useConnectionStore } from '@/stores/connection-store'
 import { useCrisisStore } from '@/stores/crisis-store'
@@ -15,7 +18,16 @@ export function AppShell() {
   const redisFallback = useConnectionStore((s) => s.redisFallbackActive)
   const level = useCrisisStore((s) => s.level)
   const alarmMuted = useCrisisStore((s) => s.alarmMuted)
+  const toggleAlarmMuted = useCrisisStore((s) => s.toggleAlarmMuted)
   const isEmergency = level === 'KOD_KIRMIZI' || level === 'WATER_CUTOFF'
+
+  // Acil durum aktifken ve ses açıkken sürekli alarm döngüsü çal.
+  // alarmMuted veya isEmergency değiştiğinde döngü yeniden kurulur.
+  useEffect(() => {
+    if (!isEmergency || alarmMuted) return
+    const stop = startAlarmLoop(0.08, 2200)
+    return stop
+  }, [isEmergency, alarmMuted])
 
   return (
     <div
@@ -34,7 +46,13 @@ export function AppShell() {
       {isEmergency ? (
         <div className="fixed right-4 top-24 z-50 inline-flex items-center gap-s2 rounded-md border border-destructive/60 bg-red-soft px-s3 py-s2 text-xs text-destructive">
           <ShieldAlert className="h-4 w-4" />
-          {alarmMuted ? <VolumeX className="h-4 w-4" /> : <Volume2 className="h-4 w-4" />}
+          <button
+            onClick={toggleAlarmMuted}
+            className="rounded p-0.5 transition hover:bg-destructive/10"
+            title={alarmMuted ? 'Sesi aç' : 'Sesi kapat'}
+          >
+            {alarmMuted ? <VolumeX className="h-4 w-4" /> : <Volume2 className="h-4 w-4" />}
+          </button>
           Acil Alarm
         </div>
       ) : null}
@@ -47,6 +65,7 @@ export function AppShell() {
           <Outlet />
         </main>
       </div>
+      <ChatBot />
     </div>
   )
 }

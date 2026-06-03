@@ -1,9 +1,8 @@
 import { Bell, LogOut, Radar, Settings, UserRound, X } from 'lucide-react'
-import { useEffect, useState } from 'react'
+import { useEffect, useRef, useState } from 'react'
 import { Link, useNavigate } from 'react-router-dom'
 
 import { useLiveTelemetry } from '@/hooks/useLiveTelemetry'
-import { useNexusComputation } from '@/hooks/useNexus'
 import { Button } from '@/components/ui/button'
 import { cn } from '@/lib/utils'
 import { useCrisisStore, type CrisisLogEntry } from '@/stores/crisis-store'
@@ -50,21 +49,38 @@ export function GlobalHeader({ className }: { className?: string }) {
     (s) => s.manualLock && (s.level === 'red' || s.level === 'KOD_KIRMIZI' || s.level === 'WATER_CUTOFF'),
   )
   const crisisLogs = useCrisisStore((s) => s.notificationLogs)
+  // Debounced kriz seviyesi — CrisisProvider'daki 4-paket eşiğinden geçmiş değer
+  const crisisLevel = useCrisisStore((s) => s.level)
 
-  const { tier } = useNexusComputation(
-    telemetry.data?.energy_kwh,
-    telemetry.data?.water_m3,
-    lockedRed,
-  )
+  // Header tier'ı ham telemetriden değil, debounce edilmiş crisisStore'dan türetilir.
+  const tier: ReturnType<typeof useNexusComputation>['tier'] =
+    crisisLevel === 'none' ? 'normal'
+    : crisisLevel === 'yellow' ? 'warning'
+    : crisisLevel === 'orange' ? 'alert'
+    : 'critical'
 
   const [isProfileOpen, setIsProfileOpen] = useState(false)
   const [isNotifOpen, setIsNotifOpen] = useState(false)
   const [notifications, setNotifications] = useState<CrisisLogEntry[]>(crisisLogs)
   const navigate = useNavigate()
+  const dropdownRef = useRef<HTMLDivElement>(null)
 
   useEffect(() => {
     setNotifications(crisisLogs)
   }, [crisisLogs])
+
+  // Dropdown dışına tıklanınca kapat
+  useEffect(() => {
+    if (!isProfileOpen) return
+    function handleOutsideClick(e: MouseEvent) {
+      if (dropdownRef.current && !dropdownRef.current.contains(e.target as Node)) {
+        setIsProfileOpen(false)
+        setIsNotifOpen(false)
+      }
+    }
+    document.addEventListener('mousedown', handleOutsideClick)
+    return () => document.removeEventListener('mousedown', handleOutsideClick)
+  }, [isProfileOpen])
 
   const dismissNotification = (id: string) => {
     setNotifications((prev) => prev.filter((n) => n.id !== id))
@@ -118,10 +134,7 @@ export function GlobalHeader({ className }: { className?: string }) {
           <StatusDot variant={healthVariant} label={healthLabel} />
 
           {/* Profile & Notifications dropdown */}
-          <div className="relative">
-            {isProfileOpen && (
-              <div className="fixed inset-0 z-40" onClick={closeProfile} aria-hidden />
-            )}
+          <div className="relative" ref={dropdownRef}>
 
             <Button
               variant="ghost"

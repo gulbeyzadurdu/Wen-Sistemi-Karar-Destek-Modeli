@@ -13,10 +13,10 @@ export type NexusComputation = {
  */
 export function computeNexus(energy_kwh?: number | null, water_m3?: number | null): NexusComputation {
   if (energy_kwh == null || water_m3 == null) {
-    return { ratio: null, tier: 'warning' }
+    return { ratio: null, tier: 'normal' }
   }
   if (!(water_m3 > 0)) {
-    return { ratio: null, tier: 'warning' }
+    return { ratio: null, tier: 'normal' }
   }
   const ratio = energy_kwh / water_m3
   if (!(Number.isFinite(ratio))) return { ratio: null, tier: 'warning' }

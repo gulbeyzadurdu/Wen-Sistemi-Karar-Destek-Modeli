@@ -2,6 +2,8 @@ import { Activity, AlertTriangle, Gauge, Settings, Terminal } from 'lucide-react
 import { type ComponentType, useMemo } from 'react'
 import { Link } from 'react-router-dom'
 
+import { AiSummaryCard } from '@/components/ai/AiSummaryCard'
+
 import { useDateFormat } from '@/hooks/useDateFormat'
 
 import { TechnicalLiveChart } from '@/components/charts/TechnicalLiveChart'
@@ -277,6 +279,13 @@ export function TechnicalDashboardPage() {
           sparkline={inletPressure}
         />
       </section>
+
+      <AiSummaryCard
+        energyValue={live.data?.energy_kwh ?? 0}
+        waterValue={live.data?.water_m3 ?? 0}
+        nexusRatio={latestRatio ?? 0}
+        anomalyFlag={latestRatio != null && (latestRatio < 0.8 || latestRatio > 1.5)}
+      />
 
       <section className="grid gap-s4 xl:grid-cols-[minmax(0,1fr),320px]">
         <article className="space-y-s4 glass-card overflow-hidden border border-white/10 p-6">

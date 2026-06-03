@@ -23,8 +23,8 @@ export function StrategicTrendChart({ rows }: Props) {
           </defs>
           <CartesianGrid stroke="var(--chart-grid)" vertical={false} />
           <XAxis dataKey="month" tick={{ fill: 'var(--chart-axis)', fontSize: 11 }} />
-          <YAxis yAxisId="left" tick={{ fill: '#22a7d8', fontSize: 11 }} width={42} />
-          <YAxis yAxisId="right" orientation="right" tick={{ fill: '#3bcfcf', fontSize: 11 }} width={42} />
+          <YAxis yAxisId="left" tick={{ fill: '#22a7d8', fontSize: 11 }} width={42} domain={[0, 'auto']} />
+          <YAxis yAxisId="right" orientation="right" tick={{ fill: '#3bcfcf', fontSize: 11 }} width={42} domain={[0, 'auto']} />
           <Tooltip
             contentStyle={{
               backgroundColor: 'var(--chart-tooltip-bg)',
