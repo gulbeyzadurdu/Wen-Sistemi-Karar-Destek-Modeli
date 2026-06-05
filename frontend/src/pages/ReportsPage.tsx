@@ -61,7 +61,7 @@ export function ReportsPage() {
                   <td className="px-s4 py-4">
                     <Button
                       type="button"
-                      variant="outline"
+                      variant="secondary"
                       size="sm"
                       onClick={() => exportIndustrialCsv(selectedFactoryId, crisisLevel)}
                     >

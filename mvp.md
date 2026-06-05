@@ -1,5 +1,7 @@
 # **WEN \- Water-Energy Nexus Karar Destek Sistemi**
 
+> **Güncel özet:** [prodocs/MVP.md](./prodocs/MVP.md)
+
 ## **Faz 1: MVP Kapsam Dokümanı**
 
 **Proje Sahibi:** Business Product Owner

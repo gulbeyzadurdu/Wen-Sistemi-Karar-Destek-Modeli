@@ -1,4 +1,4 @@
-import { Activity, AlertTriangle, Gauge, Settings, Terminal } from 'lucide-react'
+import { Activity, AlertTriangle, Gauge, Settings, Terminal, WifiOff } from 'lucide-react'
 import { type ComponentType, useMemo } from 'react'
 import { Link } from 'react-router-dom'
 
@@ -10,8 +10,10 @@ import { TechnicalLiveChart } from '@/components/charts/TechnicalLiveChart'
 import { FactorySelector } from '@/components/factories/FactorySelector'
 import { IoTGatewayPanel } from '@/components/iot/IoTGatewayPanel'
 import { Button } from '@/components/ui/button'
+import { Skeleton } from '@/components/ui/skeleton'
 import { useAnomalies } from '@/hooks/useAnomalies'
 import { useLiveTelemetry, useTechnicalSeries } from '@/hooks/useLiveTelemetry'
+import { anomalySeverityBadgeClass, normalizeAnomalySeverity } from '@/lib/anomaly-severity'
 import { cn } from '@/lib/utils'
 import { FACTORIES } from '@/mocks/factories'
 import { useConnectionStore } from '@/stores/connection-store'
@@ -214,7 +216,16 @@ export function TechnicalDashboardPage() {
             ANLIK · {series.fetchStatus.toUpperCase()} · {series.isFetching ? 'güncelleniyor...' : 'canlı'}
           </span>
         </div>
-        <TechnicalLiveChart rows={activeRows} thresholds={thresholds} />
+        {series.isLoading ? (
+          <Skeleton className="h-64 w-full" />
+        ) : series.isError ? (
+          <div className="flex items-center gap-s3 py-s4">
+            <WifiOff className="h-5 w-5 shrink-0 text-warn" aria-hidden />
+            <p className="font-mono text-sm text-warn">Canlı veri akışı kesildi · yeniden bağlanıyor…</p>
+          </div>
+        ) : (
+          <TechnicalLiveChart rows={activeRows} thresholds={thresholds} />
+        )}
       </section>
 
       <IoTGatewayPanel />
@@ -340,8 +351,11 @@ export function TechnicalDashboardPage() {
           <div className="space-y-s2">
             {anomalyFeed.map((item) => (
               <article key={item.id} className="glass-card glass-card-hover p-s3">
-                <p className="font-mono text-[11px] uppercase tracking-[0.35em] text-slate">
-                  {item.id} · <span className="text-energy">{item.severity}</span>
+                <p className="flex flex-wrap items-center gap-s2 font-mono text-[11px] uppercase tracking-[0.35em] text-slate">
+                  <span className="text-foreground">{item.id}</span>
+                  <span className={anomalySeverityBadgeClass(item.severity)}>
+                    {normalizeAnomalySeverity(item.severity)}
+                  </span>
                 </p>
                 <p className="mt-s1 text-xs text-muted-foreground">{item.summary}</p>
                 <p className="mt-s1 text-[11px] text-slate">{item.ts}</p>

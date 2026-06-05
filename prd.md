@@ -1,5 +1,7 @@
 # WEN — Water-Energy Nexus Karar Destek Sistemi
 
+> **Ajan özeti:** [prodocs/PRD.md](./prodocs/PRD.md) · Bu dosya teknik tam sürüm (ER diyagramı dahil).
+
 **Teknik Ürün Gereksinim Dokümanı (Technical PRD)**
 
 | Alan | Değer |

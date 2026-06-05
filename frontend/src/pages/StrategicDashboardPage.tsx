@@ -1,4 +1,4 @@
-import { Activity, Droplets, Layers3, TrendingUp, Zap } from 'lucide-react'
+import { Activity, Droplets, Layers3, TrendingUp, WifiOff, Zap } from 'lucide-react'
 import { type ComponentType, useMemo } from 'react'
 
 import { AiReportCard } from '@/components/ai/AiReportCard'
@@ -8,12 +8,13 @@ import { StrategicTrendChart } from '@/components/charts/StrategicTrendChart'
 import { FactorySelector } from '@/components/factories/FactorySelector'
 import { IoTGatewayPanel } from '@/components/iot/IoTGatewayPanel'
 import { CrisisActionBanner } from '@/components/strategic/CrisisActionBanner'
+import { Button } from '@/components/ui/button'
+import { Skeleton } from '@/components/ui/skeleton'
 import { useLiveTelemetry } from '@/hooks/useLiveTelemetry'
 import { useNexusComputation, type NexusComputation } from '@/hooks/useNexus'
 import { FACTORIES } from '@/mocks/factories'
 import { useCrisisStore } from '@/stores/crisis-store'
 import { useOpsStore } from '@/stores/ops-store'
-import { Button } from '@/components/ui/button'
 
 type Trend = 'up' | 'down'
 
@@ -174,31 +175,47 @@ export function StrategicDashboardPage() {
 
       <IoTGatewayPanel />
 
-      <section className="grid gap-s4 md:grid-cols-2 xl:grid-cols-3">
-        <KpiCard
-          title={isFactorySelected ? 'Fabrika Enerji (kWh)' : 'Toplam Enerji (kWh)'}
-          value={energy > 0 ? energy.toFixed(2) : '--'}
-          detail={isFactorySelected ? 'Seçili fabrika anlık enerji' : 'Anlık tüketim ve son döngü karşılaştırması'}
-          accent="#22a7d8"
-          trend={{ value: `${energyTrend >= 0 ? '+' : ''}${energyTrend.toFixed(1)}%`, direction: energyTrend >= 0 ? 'up' : 'down' }}
-          icon={Zap}
-        />
-        <KpiCard
-          title="Toplam Su (m³)"
-          value={water > 0 ? water.toFixed(2) : '--'}
-          detail="Aylık hedefe göre su kullanımı"
-          accent="#3bcfcf"
-          progress={waterProgress}
-          icon={Droplets}
-        />
-        <KpiCard
-          title="Nexus Orani (Rn)"
-          value={Number.isFinite(effectiveRatio) ? effectiveRatio.toFixed(2) : '∞'}
-          detail={`Sistem verimlilik seviyesi: ${tier.toUpperCase()}`}
-          accent={ratioTone(effectiveRatio > 1.5 ? 'critical' : tier)}
-          icon={Activity}
-        />
-      </section>
+      {telemetry.isLoading ? (
+        <section className="grid gap-s4 md:grid-cols-2 xl:grid-cols-3">
+          <Skeleton className="h-32 w-full" />
+          <Skeleton className="h-32 w-full" />
+          <Skeleton className="h-32 w-full" />
+        </section>
+      ) : telemetry.isError ? (
+        <section className="glass-card flex items-center gap-s4 p-s5">
+          <WifiOff className="h-6 w-6 shrink-0 text-destructive" aria-hidden />
+          <div>
+            <p className="font-mono text-[11px] uppercase tracking-[0.45em] text-destructive">Bağlantı Hatası</p>
+            <p className="mt-s1 text-sm text-slate">Telemetri verisi alınamadı · bağlantıyı kontrol edin</p>
+          </div>
+        </section>
+      ) : (
+        <section className="grid gap-s4 md:grid-cols-2 xl:grid-cols-3">
+          <KpiCard
+            title={isFactorySelected ? 'Fabrika Enerji (kWh)' : 'Toplam Enerji (kWh)'}
+            value={energy > 0 ? energy.toFixed(2) : '--'}
+            detail={isFactorySelected ? 'Seçili fabrika anlık enerji' : 'Anlık tüketim ve son döngü karşılaştırması'}
+            accent="#22a7d8"
+            trend={{ value: `${energyTrend >= 0 ? '+' : ''}${energyTrend.toFixed(1)}%`, direction: energyTrend >= 0 ? 'up' : 'down' }}
+            icon={Zap}
+          />
+          <KpiCard
+            title="Toplam Su (m³)"
+            value={water > 0 ? water.toFixed(2) : '--'}
+            detail="Aylık hedefe göre su kullanımı"
+            accent="#3bcfcf"
+            progress={waterProgress}
+            icon={Droplets}
+          />
+          <KpiCard
+            title="Nexus Orani (Rn)"
+            value={Number.isFinite(effectiveRatio) ? effectiveRatio.toFixed(2) : '∞'}
+            detail={`Sistem verimlilik seviyesi: ${tier.toUpperCase()}`}
+            accent={ratioTone(effectiveRatio > 1.5 ? 'critical' : tier)}
+            icon={Activity}
+          />
+        </section>
+      )}
 
       <AiSummaryCard
         energyValue={energy}
@@ -285,9 +302,6 @@ export function StrategicDashboardPage() {
         </div>
       </section>
 
-      {!telemetry.data && (
-        <p className="text-sm text-warn">{telemetry.status === 'pending' ? 'Telemetri hazırlanıyor...' : 'Paket alınamadı · tekrar deneyin.'}</p>
-      )}
     </div>
   )
 }

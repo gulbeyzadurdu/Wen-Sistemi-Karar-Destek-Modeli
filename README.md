@@ -2,6 +2,33 @@
 
 Endüstriyel Su–Enerji Nexus karar destek arayüzü. Stratejik (yönetici) ve Teknik (operasyon) rolleri için canlı telemetri simülasyonu, çok katmanlı kriz protokolü (Sarı / Turuncu / Kod Kırmızı / Acil Su Kesintisi), yapay zeka destekli analiz & raporlama ve fabrika bazlı izleme sunar.
 
+## Klasör Yapısı
+
+```
+/
+├── frontend/          # React 19 + TypeScript arayüz (Vite)
+├── backend/           # FastAPI arkayüz (Python 3.11+)
+├── prodocs/           # Geliştirme referans belgeleri (ajanlar için)
+├── infrastructure/    # Mosquitto vb. altyapı config
+├── docker-compose.yml # TimescaleDB, Redis, MQTT
+├── .env.example       # Ortam değişkeni şablonu (gerçek anahtar yok)
+├── .gitignore
+└── README.md          # Bu dosya
+```
+
+Mobil native gerekirse ileride `/ios` veya `/android` eklenebilir.
+
+## Belgeler (`prodocs/`)
+
+| Dosya | İçerik |
+|-------|--------|
+| [prodocs/PRD.md](prodocs/PRD.md) | Problem, kullanıcı, temel özellikler |
+| [prodocs/tech-stack.md](prodocs/tech-stack.md) | Teknoloji seçimleri ve AI kullanımı |
+| [prodocs/Plan.md](prodocs/Plan.md) | Teknik adımlar ve ilerleme |
+| [prodocs/DesignSystem.md](prodocs/DesignSystem.md) | Renk, tipografi, bileşen kuralları |
+| [prodocs/Progress.md](prodocs/Progress.md) | İş kaydı ve kararlar |
+| [prodocs/MVP.md](prodocs/MVP.md) | MVP kapsamı |
+
 ---
 
 ## Hızlı Başlangıç (Yalnızca Frontend — önerilen test yolu)
@@ -95,10 +122,9 @@ Backend JWT kimlik doğrulama, telemetri, kriz audit ve AI uç noktalarıyla iş
 - **AI:** OpenRouter API (google/gemini-2.5-flash-lite) — anlık özet, dönemsel rapor, bağlam-duyarlı chatbot
 - **Altyapı:** TimescaleDB / PostgreSQL 15, Redis, Mosquitto (MQTT)
 
-## Proje Belgeleri
+## Ek Referanslar
 
-- [plan.md](plan.md) — Faz 0-3 yol haritası
-- [prd.md](prd.md) — Ürün gereksinimleri
-- [mvp.md](mvp.md) — MVP kapsamı
-- [frontend/user flow.md](frontend/user%20flow.md) — Detaylı UI akışı ve Nexus eşik tanımları
+- [prd.md](prd.md) — Teknik PRD (ER diyagramı)
+- [plan.md](plan.md) → [prodocs/Plan.md](prodocs/Plan.md)
+- [frontend/user flow.md](frontend/user%20flow.md) — UI akışı ve Nexus eşik tanımları
 - [.cursor/rules/](.cursor/rules/) — Cursor kodlama kuralları

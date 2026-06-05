@@ -1,7 +1,9 @@
+import type { AnomalySeverity } from '@/lib/anomaly-severity'
+
 export type FactoryAnomaly = {
   id: string
   factoryId: string
-  severity: 'Kritik' | 'Turuncu' | 'Sarı' | 'Yeşil' | 'Uyarı'
+  severity: AnomalySeverity
   summary: string
   ts: string
 }
@@ -12,21 +14,21 @@ export const FACTORY_ANOMALY_HISTORY: FactoryAnomaly[] = [
   {
     id: 'ANM-TEK-921',
     factoryId: 'tekstil-a',
-    severity: 'Sarı',
+    severity: 'Uyarı',
     summary: 'Tekstil-A buhar hattında kısa süreli basınç dalgalanması.',
     ts: new Date(now - 9 * 60_000).toLocaleString('tr-TR'),
   },
   {
     id: 'ANM-OTO-905',
     factoryId: 'otomotiv-b',
-    severity: 'Turuncu',
+    severity: 'Uyarı',
     summary: 'Otomotiv-B enerji tüketimi 20 dakikada %16 arttı.',
     ts: new Date(now - 28 * 60_000).toLocaleString('tr-TR'),
   },
   {
     id: 'ANM-GID-877',
     factoryId: 'gida-c',
-    severity: 'Yeşil',
+    severity: 'Bilgi',
     summary: 'Gıda-C yalancı pozitif alarmı doğrulandı ve kapatıldı.',
     ts: new Date(now - 2 * 60 * 60_000).toLocaleString('tr-TR'),
   },
@@ -47,7 +49,7 @@ export const FACTORY_ANOMALY_HISTORY: FactoryAnomaly[] = [
   {
     id: 'ANM-TEK-818',
     factoryId: 'tekstil-a',
-    severity: 'Yeşil',
+    severity: 'Bilgi',
     summary: 'Tekstil-A otomatik dengeleme sayesinde eşik değer normale döndü.',
     ts: new Date(now - 3 * 60 * 60_000).toLocaleString('tr-TR'),
   },

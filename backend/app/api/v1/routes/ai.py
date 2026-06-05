@@ -38,19 +38,48 @@ def _extract_json(raw: str) -> dict:
     return json.loads(cleaned)
 
 
+def _run_rule_engine(
+    nexus_ratio: float,
+    energy_value: float,
+    water_value: float,
+    anomaly_flag: bool,
+) -> list[str]:
+    findings: list[str] = []
+
+    if energy_value > 16.0 and water_value < 9.0:
+        findings.append("Enerji yüksek, su düşük: mekanik sürtünme veya pompa arızası riski.")
+    if nexus_ratio > 1.5:
+        findings.append("Nexus oranı kritik eşiği aştı: sistem verimsiz çalışıyor.")
+    if nexus_ratio < 0.5:
+        findings.append("Nexus oranı çok düşük: aşırı su tüketimi veya enerji kaybı olabilir.")
+    if anomaly_flag and nexus_ratio > 1.2:
+        findings.append("Anomali aktif ve Nexus yüksek: acil teknik müdahale önerilir.")
+    if water_value == 0:
+        findings.append("Su tüketimi sıfır: sensör arızası veya su kesintisi olabilir.")
+
+    return findings
+
+
 def _build_summary_prompt(
     nexus_ratio: float,
     energy_value: float,
     water_value: float,
     anomaly_flag: bool,
+    rule_findings: list[str],
 ) -> str:
     anomaly_str = "Var" if anomaly_flag else "Yok"
+    rule_block = ""
+    if rule_findings:
+        rule_lines = "\n".join(f"- {finding}" for finding in rule_findings)
+        rule_block = f"Kural Motoru Tespitleri:\n{rule_lines}\n\n"
+
     return (
         f"Aşağıdaki anlık fabrika verisini analiz et:\n"
         f"- Nexus Ratio: {nexus_ratio} (Normal aralık: 0.8 - 1.2)\n"
         f"- Enerji Tüketimi: {energy_value} kWh\n"
         f"- Su Tüketimi: {water_value} m³\n"
         f"- Anomali Durumu: {anomaly_str}\n\n"
+        f"{rule_block}"
         'Şu JSON formatında yanıt ver:\n'
         '{\n'
         '  "summary": "2-3 cümle yönetici özeti",\n'
@@ -156,6 +185,8 @@ async def get_ai_summary(
         settings.ai_model,
     )
 
+    rule_findings = _run_rule_engine(nexus_ratio, energy_value, water_value, anomaly_flag)
+
     messages = [
         {"role": "system", "content": _SYSTEM_PROMPT},
         {
@@ -165,6 +196,7 @@ async def get_ai_summary(
                 energy_value=energy_value,
                 water_value=water_value,
                 anomaly_flag=anomaly_flag,
+                rule_findings=rule_findings,
             ),
         },
     ]
