@@ -9,7 +9,8 @@ import { FACTORIES } from '@/mocks/factories'
 import { useAuthStore } from '@/stores/auth-store'
 import { useConnectionStore } from '@/stores/connection-store'
 import { getSessionStart } from '@/lib/session'
-import { selectUnreadNotifications, useCrisisStore } from '@/stores/crisis-store'
+import { useUnreadNotifications } from '@/hooks/useUnreadNotifications'
+import { useCrisisStore } from '@/stores/crisis-store'
 import { useOpsStore } from '@/stores/ops-store'
 
 // ─── Role-specific mock data ────────────────────────────────────────────────
@@ -150,7 +151,7 @@ export function ProfilePage() {
   const isAuthenticated = useAuthStore((s) => s.isAuthenticated)
   const logout = useAuthStore((s) => s.logout)
   const navigate = useNavigate()
-  const unreadNotifications = useCrisisStore(selectUnreadNotifications)
+  const unreadNotifications = useUnreadNotifications()
   const crisisLevel = useCrisisStore((s) => s.level)
   const emergencySimulationActive = useCrisisStore((s) => s.emergencySimulationActive)
   const warningSimulationActive = useOpsStore((s) => s.warningSimulationActive)

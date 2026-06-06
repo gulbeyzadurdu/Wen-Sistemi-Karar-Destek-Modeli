@@ -4,7 +4,8 @@ import { Link, useNavigate } from 'react-router-dom'
 
 import { Button } from '@/components/ui/button'
 import { cn } from '@/lib/utils'
-import { selectUnreadNotifications, useCrisisStore } from '@/stores/crisis-store'
+import { useUnreadNotifications } from '@/hooks/useUnreadNotifications'
+import { useCrisisStore } from '@/stores/crisis-store'
 import { useAuthStore } from '@/stores/auth-store'
 import { useConnectionStore } from '@/stores/connection-store'
 import { WeatherWidget } from '@/components/layout/WeatherWidget'
@@ -42,7 +43,7 @@ export function GlobalHeader({ className }: { className?: string }) {
   const mqttConnected = useConnectionStore((s) => s.mqttConnected)
   const redisFallback = useConnectionStore((s) => s.redisFallbackActive)
 
-  const unreadNotifications = useCrisisStore(selectUnreadNotifications)
+  const unreadNotifications = useUnreadNotifications()
   const dismissNotification = useCrisisStore((s) => s.dismissNotification)
   // Debounced kriz seviyesi — CrisisProvider'daki 4-paket eşiğinden geçmiş değer
   const crisisLevel = useCrisisStore((s) => s.level)

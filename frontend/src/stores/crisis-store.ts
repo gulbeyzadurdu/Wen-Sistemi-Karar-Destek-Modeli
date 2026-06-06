@@ -40,8 +40,12 @@ type CrisisState = {
 }
 
 export function selectUnreadNotifications(state: CrisisState): CrisisLogEntry[] {
-  const dismissed = new Set(state.dismissedNotificationIds)
-  return state.notificationLogs.filter((log) => !dismissed.has(log.id))
+  const dismissed = new Set(state.dismissedNotificationIds ?? [])
+  return (state.notificationLogs ?? []).filter((log) => !dismissed.has(log.id))
+}
+
+export function selectUnreadNotificationCount(state: CrisisState): number {
+  return selectUnreadNotifications(state).length
 }
 
 function buildLog(level: CrisisLevelUI, message: string): CrisisLogEntry {
@@ -69,11 +73,14 @@ export const useCrisisStore = create<CrisisState>()(
           notificationLogs: [...state.notificationLogs, buildLog(state.level, message)],
         })),
       dismissNotification: (id) =>
-        set((state) => ({
-          dismissedNotificationIds: state.dismissedNotificationIds.includes(id)
-            ? state.dismissedNotificationIds
-            : [...state.dismissedNotificationIds, id],
-        })),
+        set((state) => {
+          const dismissed = state.dismissedNotificationIds ?? []
+          return {
+            dismissedNotificationIds: dismissed.includes(id)
+              ? dismissed
+              : [...dismissed, id],
+          }
+        }),
       clearNotificationLogs: () => set({ notificationLogs: [], dismissedNotificationIds: [] }),
       resetSessionState: () =>
         set({
@@ -169,6 +176,16 @@ export const useCrisisStore = create<CrisisState>()(
         dismissedNotificationIds: state.dismissedNotificationIds,
         auditLogs: state.auditLogs,
       }),
+      merge: (persistedState, currentState) => {
+        const persisted = persistedState as Partial<CrisisState> | undefined
+        return {
+          ...currentState,
+          ...persisted,
+          dismissedNotificationIds: persisted?.dismissedNotificationIds ?? [],
+          notificationLogs: persisted?.notificationLogs ?? [],
+          auditLogs: persisted?.auditLogs ?? [],
+        }
+      },
     },
   ),
 )
