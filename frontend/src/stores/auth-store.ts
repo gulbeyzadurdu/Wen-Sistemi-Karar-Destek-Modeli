@@ -12,6 +12,7 @@ type AuthUser = {
 type AuthState = {
   user: AuthUser | null
   isAuthenticated: boolean
+  sessionStartedAt: number | null
   login: (role: UserRole, name?: string) => void
   logout: () => void
 }
@@ -21,6 +22,7 @@ export const useAuthStore = create<AuthState>()(
     (set) => ({
       user: null,
       isAuthenticated: false,
+      sessionStartedAt: null,
       login(role, name) {
         set({
           user: {
@@ -29,10 +31,11 @@ export const useAuthStore = create<AuthState>()(
             name: name ?? (role === 'STRATEGIC' ? 'Arif Bey' : 'Emre Bey'),
           },
           isAuthenticated: true,
+          sessionStartedAt: Date.now(),
         })
       },
       logout() {
-        set({ user: null, isAuthenticated: false })
+        set({ user: null, isAuthenticated: false, sessionStartedAt: null })
       },
     }),
     {
@@ -40,6 +43,7 @@ export const useAuthStore = create<AuthState>()(
       partialize: (state) => ({
         user: state.user,
         isAuthenticated: state.isAuthenticated,
+        sessionStartedAt: state.sessionStartedAt,
       }),
     },
   ),

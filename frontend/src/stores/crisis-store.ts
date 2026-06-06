@@ -28,6 +28,7 @@ type CrisisState = {
   toggleAlarmMuted: () => void
   notificationLogs: CrisisLogEntry[]
   appendNotificationLog: (message: string) => void
+  removeNotificationLog: (id: string) => void
   clearNotificationLogs: () => void
   auditLogs: CrisisLogEntry[]
   appendAuditLog: (message: string) => void
@@ -56,6 +57,10 @@ export const useCrisisStore = create<CrisisState>()(
       appendNotificationLog: (message) =>
         set((state) => ({
           notificationLogs: [...state.notificationLogs, buildLog(state.level, message)],
+        })),
+      removeNotificationLog: (id) =>
+        set((state) => ({
+          notificationLogs: state.notificationLogs.filter((log) => log.id !== id),
         })),
       clearNotificationLogs: () => set({ notificationLogs: [] }),
       appendAuditLog: (message) =>

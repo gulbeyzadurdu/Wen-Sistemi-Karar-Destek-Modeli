@@ -1,5 +1,5 @@
 import { Check, Copy, Lock, LogOut, Shield, UserRound } from 'lucide-react'
-import { useEffect, useRef, useState } from 'react'
+import { useEffect, useState } from 'react'
 import { useNavigate } from 'react-router-dom'
 
 import { useAnomalies } from '@/hooks/useAnomalies'
@@ -9,6 +9,7 @@ import { FACTORIES } from '@/mocks/factories'
 import { useAuthStore } from '@/stores/auth-store'
 import { useConnectionStore } from '@/stores/connection-store'
 import { useCrisisStore } from '@/stores/crisis-store'
+import { useOpsStore } from '@/stores/ops-store'
 
 // ─── Role-specific mock data ────────────────────────────────────────────────
 
@@ -92,13 +93,17 @@ const BADGE_STYLES: Record<BadgeType, string> = {
 
 // ─── Helpers ─────────────────────────────────────────────────────────────────
 
-function useSessionDuration() {
-  const startRef = useRef(Date.now())
+function useSessionDuration(sessionStartedAt: number | null) {
   const [elapsed, setElapsed] = useState('00:00')
 
   useEffect(() => {
+    if (sessionStartedAt == null) {
+      setElapsed('00:00')
+      return
+    }
+
     const tick = () => {
-      const diff = Date.now() - startRef.current
+      const diff = Date.now() - sessionStartedAt
       const m = Math.floor(diff / 60000)
       const s = Math.floor((diff % 60000) / 1000)
       setElapsed(`${String(m).padStart(2, '0')}:${String(s).padStart(2, '0')}`)
@@ -106,7 +111,7 @@ function useSessionDuration() {
     const id = setInterval(tick, 1000)
     tick()
     return () => clearInterval(id)
-  }, [])
+  }, [sessionStartedAt])
 
   return elapsed
 }
@@ -136,11 +141,13 @@ const CRISIS_LABELS: Record<string, string> = {
 
 export function ProfilePage() {
   const user = useAuthStore((s) => s.user)
+  const sessionStartedAt = useAuthStore((s) => s.sessionStartedAt)
   const logout = useAuthStore((s) => s.logout)
   const navigate = useNavigate()
   const notifLogs = useCrisisStore((s) => s.notificationLogs)
-  const auditLogs = useCrisisStore((s) => s.auditLogs)
   const crisisLevel = useCrisisStore((s) => s.level)
+  const manualLock = useCrisisStore((s) => s.manualLock)
+  const scenario = useOpsStore((s) => s.scenario)
   const mqttConnected = useConnectionStore((s) => s.mqttConnected)
   const { data: anomalies } = useAnomalies('ALL')
   const { fmtDateTime } = useDateFormat()
@@ -156,19 +163,12 @@ export function ProfilePage() {
     .toUpperCase()
     .slice(0, 2)
 
-  const sessionDuration = useSessionDuration()
+  const sessionDuration = useSessionDuration(sessionStartedAt)
+  const sessionStart = sessionStartedAt != null ? fmtDateTime(new Date(sessionStartedAt)) : '—'
 
-  // Session start formatted according to the user's regional setting
-  const sessionStartRef = useRef(new Date())
-  const sessionStart = fmtDateTime(sessionStartRef.current)
-
-  // Simülasyon sayısı: bugün tetiklenmiş audit log kayıtları
-  const todayStr = new Date().toDateString()
-  const simCount = auditLogs.filter(
-    (l) =>
-      (l.message.includes('simülasyon') || l.message.includes('SİMÜLASYON')) &&
-      new Date(l.tsIso).toDateString() === todayStr,
-  ).length
+  let activeSimCount = 0
+  if (scenario !== 'NONE') activeSimCount++
+  if (manualLock && crisisLevel !== 'none') activeSimCount++
 
   // Bağlı fabrika: MQTT açıksa Offline olmayan fabrikalar
   const connectedFactories = mqttConnected ? FACTORIES.filter((f) => f.status !== 'Offline').length : 0
@@ -176,7 +176,7 @@ export function ProfilePage() {
   // Activity stats mapped to live store/hook data
   const activityStats: ActivityStat[] = isStrategic
     ? [
-        { value: String(simCount), label: 'Aktif Simülasyon' },
+        { value: String(activeSimCount), label: 'Aktif Simülasyon' },
         { value: String(notifLogs.length), label: 'Okunmamış Bildirim' },
         { value: sessionDuration, label: 'Bu Oturum Süresi' },
       ]

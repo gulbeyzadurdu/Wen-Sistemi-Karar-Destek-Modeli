@@ -4,7 +4,7 @@ import { Link, useNavigate } from 'react-router-dom'
 
 import { Button } from '@/components/ui/button'
 import { cn } from '@/lib/utils'
-import { useCrisisStore, type CrisisLogEntry } from '@/stores/crisis-store'
+import { useCrisisStore } from '@/stores/crisis-store'
 import { useAuthStore } from '@/stores/auth-store'
 import { useConnectionStore } from '@/stores/connection-store'
 import { WeatherWidget } from '@/components/layout/WeatherWidget'
@@ -43,6 +43,7 @@ export function GlobalHeader({ className }: { className?: string }) {
   const redisFallback = useConnectionStore((s) => s.redisFallbackActive)
 
   const crisisLogs = useCrisisStore((s) => s.notificationLogs)
+  const removeNotificationLog = useCrisisStore((s) => s.removeNotificationLog)
   // Debounced kriz seviyesi — CrisisProvider'daki 4-paket eşiğinden geçmiş değer
   const crisisLevel = useCrisisStore((s) => s.level)
 
@@ -55,13 +56,8 @@ export function GlobalHeader({ className }: { className?: string }) {
 
   const [isProfileOpen, setIsProfileOpen] = useState(false)
   const [isNotifOpen, setIsNotifOpen] = useState(false)
-  const [notifications, setNotifications] = useState<CrisisLogEntry[]>(crisisLogs)
   const navigate = useNavigate()
   const dropdownRef = useRef<HTMLDivElement>(null)
-
-  useEffect(() => {
-    setNotifications(crisisLogs)
-  }, [crisisLogs])
 
   // Dropdown dışına tıklanınca kapat
   useEffect(() => {
@@ -77,7 +73,7 @@ export function GlobalHeader({ className }: { className?: string }) {
   }, [isProfileOpen])
 
   const dismissNotification = (id: string) => {
-    setNotifications((prev) => prev.filter((n) => n.id !== id))
+    removeNotificationLog(id)
   }
 
   const closeProfile = () => {
@@ -141,9 +137,9 @@ export function GlobalHeader({ className }: { className?: string }) {
             >
               <UserRound className="h-4 w-4 text-solar" aria-hidden />
               {displayName}
-              {notifications.length > 0 && (
+              {crisisLogs.length > 0 && (
                 <span className="absolute -right-1 -top-1 flex h-4 w-4 items-center justify-center rounded-full bg-destructive text-[9px] font-bold text-white">
-                  {notifications.length > 9 ? '9+' : notifications.length}
+                  {crisisLogs.length > 9 ? '9+' : crisisLogs.length}
                 </span>
               )}
             </Button>
@@ -168,19 +164,19 @@ export function GlobalHeader({ className }: { className?: string }) {
                     <Bell className="h-4 w-4 text-solar" aria-hidden />
                     Bildirimler
                   </span>
-                  {notifications.length > 0 && (
+                  {crisisLogs.length > 0 && (
                     <span className="flex h-5 min-w-[1.25rem] items-center justify-center rounded-full bg-destructive px-1 text-[10px] font-semibold text-white">
-                      {notifications.length}
+                      {crisisLogs.length}
                     </span>
                   )}
                 </button>
 
                 {isNotifOpen && (
                   <div className="max-h-52 space-y-s1 overflow-y-auto rounded-md border border-border bg-elevated/40 p-s2">
-                    {notifications.length === 0 ? (
+                    {crisisLogs.length === 0 ? (
                       <p className="px-s2 py-s3 text-center text-xs text-slate">Okunmamış bildirim yok.</p>
                     ) : (
-                      notifications.map((n) => (
+                      crisisLogs.map((n) => (
                         <button
                           key={n.id}
                           onClick={() => dismissNotification(n.id)}
