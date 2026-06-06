@@ -1,6 +1,10 @@
 import { create } from 'zustand'
 import { persist } from 'zustand/middleware'
 
+import { clearToken } from '@/lib/api-client'
+import { clearSessionStart, setSessionStart } from '@/lib/session'
+import { useCrisisStore } from '@/stores/crisis-store'
+import { useOpsStore } from '@/stores/ops-store'
 import type { UserRole } from '@/types/wen'
 
 type AuthUser = {
@@ -12,7 +16,6 @@ type AuthUser = {
 type AuthState = {
   user: AuthUser | null
   isAuthenticated: boolean
-  sessionStartedAt: number | null
   login: (role: UserRole, name?: string) => void
   logout: () => void
 }
@@ -22,8 +25,10 @@ export const useAuthStore = create<AuthState>()(
     (set) => ({
       user: null,
       isAuthenticated: false,
-      sessionStartedAt: null,
       login(role, name) {
+        setSessionStart()
+        useCrisisStore.getState().resetSessionState()
+        useOpsStore.getState().resetSessionState()
         set({
           user: {
             id: crypto.randomUUID(),
@@ -31,11 +36,14 @@ export const useAuthStore = create<AuthState>()(
             name: name ?? (role === 'STRATEGIC' ? 'Arif Bey' : 'Emre Bey'),
           },
           isAuthenticated: true,
-          sessionStartedAt: Date.now(),
         })
       },
       logout() {
-        set({ user: null, isAuthenticated: false, sessionStartedAt: null })
+        clearSessionStart()
+        clearToken()
+        useCrisisStore.getState().resetSessionState()
+        useOpsStore.getState().resetSessionState()
+        set({ user: null, isAuthenticated: false })
       },
     }),
     {
@@ -43,7 +51,6 @@ export const useAuthStore = create<AuthState>()(
       partialize: (state) => ({
         user: state.user,
         isAuthenticated: state.isAuthenticated,
-        sessionStartedAt: state.sessionStartedAt,
       }),
     },
   ),

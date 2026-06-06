@@ -4,7 +4,7 @@ import { Link, useNavigate } from 'react-router-dom'
 
 import { Button } from '@/components/ui/button'
 import { cn } from '@/lib/utils'
-import { useCrisisStore } from '@/stores/crisis-store'
+import { selectUnreadNotifications, useCrisisStore } from '@/stores/crisis-store'
 import { useAuthStore } from '@/stores/auth-store'
 import { useConnectionStore } from '@/stores/connection-store'
 import { WeatherWidget } from '@/components/layout/WeatherWidget'
@@ -42,8 +42,8 @@ export function GlobalHeader({ className }: { className?: string }) {
   const mqttConnected = useConnectionStore((s) => s.mqttConnected)
   const redisFallback = useConnectionStore((s) => s.redisFallbackActive)
 
-  const crisisLogs = useCrisisStore((s) => s.notificationLogs)
-  const removeNotificationLog = useCrisisStore((s) => s.removeNotificationLog)
+  const unreadNotifications = useCrisisStore(selectUnreadNotifications)
+  const dismissNotification = useCrisisStore((s) => s.dismissNotification)
   // Debounced kriz seviyesi — CrisisProvider'daki 4-paket eşiğinden geçmiş değer
   const crisisLevel = useCrisisStore((s) => s.level)
 
@@ -71,10 +71,6 @@ export function GlobalHeader({ className }: { className?: string }) {
     document.addEventListener('mousedown', handleOutsideClick)
     return () => document.removeEventListener('mousedown', handleOutsideClick)
   }, [isProfileOpen])
-
-  const dismissNotification = (id: string) => {
-    removeNotificationLog(id)
-  }
 
   const closeProfile = () => {
     setIsProfileOpen(false)
@@ -137,9 +133,9 @@ export function GlobalHeader({ className }: { className?: string }) {
             >
               <UserRound className="h-4 w-4 text-solar" aria-hidden />
               {displayName}
-              {crisisLogs.length > 0 && (
+              {unreadNotifications.length > 0 && (
                 <span className="absolute -right-1 -top-1 flex h-4 w-4 items-center justify-center rounded-full bg-destructive text-[9px] font-bold text-white">
-                  {crisisLogs.length > 9 ? '9+' : crisisLogs.length}
+                  {unreadNotifications.length > 9 ? '9+' : unreadNotifications.length}
                 </span>
               )}
             </Button>
@@ -164,19 +160,19 @@ export function GlobalHeader({ className }: { className?: string }) {
                     <Bell className="h-4 w-4 text-solar" aria-hidden />
                     Bildirimler
                   </span>
-                  {crisisLogs.length > 0 && (
+                  {unreadNotifications.length > 0 && (
                     <span className="flex h-5 min-w-[1.25rem] items-center justify-center rounded-full bg-destructive px-1 text-[10px] font-semibold text-white">
-                      {crisisLogs.length}
+                      {unreadNotifications.length}
                     </span>
                   )}
                 </button>
 
                 {isNotifOpen && (
                   <div className="max-h-52 space-y-s1 overflow-y-auto rounded-md border border-border bg-elevated/40 p-s2">
-                    {crisisLogs.length === 0 ? (
+                    {unreadNotifications.length === 0 ? (
                       <p className="px-s2 py-s3 text-center text-xs text-slate">Okunmamış bildirim yok.</p>
                     ) : (
-                      crisisLogs.map((n) => (
+                      unreadNotifications.map((n) => (
                         <button
                           key={n.id}
                           onClick={() => dismissNotification(n.id)}

@@ -58,6 +58,7 @@ export function SimulationCenterPage() {
   const { fmtTime } = useDateFormat()
   const simulationTimerRef = useRef<number | null>(null)
   const warningTimerRef = useRef<number | null>(null)
+  const prevCrisisLevelRef = useRef(crisisLevel)
 
   // ── Warning scenario trigger (HIGH_WATER / ENERGY_FLUCTUATION) ──────────
   const handleTriggerWarning = (type: 'HIGH_WATER' | 'ENERGY_FLUCTUATION') => {
@@ -93,12 +94,23 @@ export function SimulationCenterPage() {
 
   // ── Acil durum notification pump ────────────────────────────────────────
   useEffect(() => {
+    const prevLevel = prevCrisisLevelRef.current
+    prevCrisisLevelRef.current = crisisLevel
+
     if (simulationTimerRef.current != null) {
       window.clearTimeout(simulationTimerRef.current)
       simulationTimerRef.current = null
     }
 
     if (crisisLevel !== 'KOD_KIRMIZI' && crisisLevel !== 'WATER_CUTOFF') return
+
+    const enteredEmergency =
+      prevLevel !== 'KOD_KIRMIZI' &&
+      prevLevel !== 'WATER_CUTOFF' &&
+      (crisisLevel === 'KOD_KIRMIZI' || crisisLevel === 'WATER_CUTOFF')
+
+    if (!enteredEmergency) return
+
     clearNotificationLogs()
 
     const queue = [...FACTORIES]

@@ -14,6 +14,7 @@ type CrisisState = {
   level: CrisisLevelUI
   /** Kod Kırmızı persists until `/crisis` resolve clears it */
   manualLock: boolean
+  emergencySimulationActive: boolean
   setLevel: (level: Exclude<CrisisLevelUI, 'none'>) => void
   escalateToRed: () => void
   startKodKirmizi: () => void
@@ -27,13 +28,20 @@ type CrisisState = {
   alarmMuted: boolean
   toggleAlarmMuted: () => void
   notificationLogs: CrisisLogEntry[]
+  dismissedNotificationIds: string[]
   appendNotificationLog: (message: string) => void
-  removeNotificationLog: (id: string) => void
+  dismissNotification: (id: string) => void
   clearNotificationLogs: () => void
+  resetSessionState: () => void
   auditLogs: CrisisLogEntry[]
   appendAuditLog: (message: string) => void
   /** Auto escalation from telemetry tier — manualLock varsa hiç dokunmaz */
   hydrateFromTier: (tier: NexusTier) => void
+}
+
+export function selectUnreadNotifications(state: CrisisState): CrisisLogEntry[] {
+  const dismissed = new Set(state.dismissedNotificationIds)
+  return state.notificationLogs.filter((log) => !dismissed.has(log.id))
 }
 
 function buildLog(level: CrisisLevelUI, message: string): CrisisLogEntry {
@@ -50,19 +58,32 @@ export const useCrisisStore = create<CrisisState>()(
     (set, get) => ({
       level: 'none',
       manualLock: false,
+      emergencySimulationActive: false,
       notifyTeamAck: false,
       alarmMuted: true,
       notificationLogs: [],
+      dismissedNotificationIds: [],
       auditLogs: [],
       appendNotificationLog: (message) =>
         set((state) => ({
           notificationLogs: [...state.notificationLogs, buildLog(state.level, message)],
         })),
-      removeNotificationLog: (id) =>
+      dismissNotification: (id) =>
         set((state) => ({
-          notificationLogs: state.notificationLogs.filter((log) => log.id !== id),
+          dismissedNotificationIds: state.dismissedNotificationIds.includes(id)
+            ? state.dismissedNotificationIds
+            : [...state.dismissedNotificationIds, id],
         })),
-      clearNotificationLogs: () => set({ notificationLogs: [] }),
+      clearNotificationLogs: () => set({ notificationLogs: [], dismissedNotificationIds: [] }),
+      resetSessionState: () =>
+        set({
+          level: 'none',
+          manualLock: false,
+          emergencySimulationActive: false,
+          notifyTeamAck: false,
+          notificationLogs: [],
+          dismissedNotificationIds: [],
+        }),
       appendAuditLog: (message) =>
         set((state) => ({
           auditLogs: [...state.auditLogs, buildLog(state.level, message)],
@@ -78,18 +99,21 @@ export const useCrisisStore = create<CrisisState>()(
         set((state) => ({
           level: 'red',
           manualLock: true,
+          emergencySimulationActive: true,
           auditLogs: [...state.auditLogs, buildLog('red', 'Kod Kırmızı manuel tetiklendi.')],
         })),
       startKodKirmizi: () =>
         set((state) => ({
           level: 'KOD_KIRMIZI',
           manualLock: true,
+          emergencySimulationActive: true,
           auditLogs: [...state.auditLogs, buildLog('KOD_KIRMIZI', 'KOD KIRMIZI simülasyonu başlatıldı.')],
         })),
       startWaterCutoff: () =>
         set((state) => ({
           level: 'WATER_CUTOFF',
           manualLock: true,
+          emergencySimulationActive: true,
           auditLogs: [...state.auditLogs, buildLog('WATER_CUTOFF', 'Acil Su Kesintisi simülasyonu başlatıldı.')],
         })),
       startInterventionSimulation: (userId = 'sistem') => {
@@ -101,6 +125,7 @@ export const useCrisisStore = create<CrisisState>()(
         set((state) => ({
           level: 'orange',
           manualLock: true,
+          emergencySimulationActive: true,
           notificationLogs: [...state.notificationLogs, buildLog('orange', msg)],
           auditLogs: [...state.auditLogs, buildLog('orange', `[SİMÜLASYON] ${msg} · kullanıcı: ${userId}`)],
         }))
@@ -109,6 +134,7 @@ export const useCrisisStore = create<CrisisState>()(
         set((state) => ({
           level: 'none',
           manualLock: false,
+          emergencySimulationActive: false,
           notifyTeamAck: false,
           auditLogs: [...state.auditLogs, buildLog('none', 'Olay çözüldü, sistem normale alındı.')],
         })),
@@ -116,8 +142,10 @@ export const useCrisisStore = create<CrisisState>()(
         set((state) => ({
           level: 'none',
           manualLock: false,
+          emergencySimulationActive: false,
           notifyTeamAck: false,
           notificationLogs: [],
+          dismissedNotificationIds: [],
           auditLogs: [...state.auditLogs, buildLog('none', 'Reset System komutu çalıştırıldı.')],
         })),
       hydrateFromTier: (tier) => {
@@ -138,6 +166,7 @@ export const useCrisisStore = create<CrisisState>()(
         notifyTeamAck: state.notifyTeamAck,
         alarmMuted: state.alarmMuted,
         notificationLogs: state.notificationLogs,
+        dismissedNotificationIds: state.dismissedNotificationIds,
         auditLogs: state.auditLogs,
       }),
     },

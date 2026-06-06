@@ -22,8 +22,10 @@ type OpsState = {
   setSelectedFactoryId: (value: 'ALL' | string) => void
 
   scenario: AlertScenario
+  warningSimulationActive: boolean
   triggerScenario: (scenario: AlertScenario) => void
   clearScenario: () => void
+  resetSessionState: () => void
 
   notifications: NotificationSettings
   setNotification: <K extends keyof NotificationSettings>(key: K, value: NotificationSettings[K]) => void
@@ -39,8 +41,11 @@ export const useOpsStore = create<OpsState>()(
       setSelectedFactoryId: (selectedFactoryId) => set({ selectedFactoryId }),
 
       scenario: 'NONE',
-      triggerScenario: (scenario) => set({ scenario }),
-      clearScenario: () => set({ scenario: 'NONE' }),
+      warningSimulationActive: false,
+      triggerScenario: (scenario) =>
+        set({ scenario, warningSimulationActive: scenario !== 'NONE' }),
+      clearScenario: () => set({ scenario: 'NONE', warningSimulationActive: false }),
+      resetSessionState: () => set({ scenario: 'NONE', warningSimulationActive: false }),
 
       notifications: {
         emailReports: true,

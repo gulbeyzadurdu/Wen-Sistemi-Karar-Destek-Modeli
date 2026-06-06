@@ -8,7 +8,8 @@ import { cn } from '@/lib/utils'
 import { FACTORIES } from '@/mocks/factories'
 import { useAuthStore } from '@/stores/auth-store'
 import { useConnectionStore } from '@/stores/connection-store'
-import { useCrisisStore } from '@/stores/crisis-store'
+import { getSessionStart } from '@/lib/session'
+import { selectUnreadNotifications, useCrisisStore } from '@/stores/crisis-store'
 import { useOpsStore } from '@/stores/ops-store'
 
 // ─── Role-specific mock data ────────────────────────────────────────────────
@@ -93,16 +94,21 @@ const BADGE_STYLES: Record<BadgeType, string> = {
 
 // ─── Helpers ─────────────────────────────────────────────────────────────────
 
-function useSessionDuration(sessionStartedAt: number | null) {
+function useSessionDuration(isAuthenticated: boolean) {
   const [elapsed, setElapsed] = useState('00:00')
 
   useEffect(() => {
-    if (sessionStartedAt == null) {
+    if (!isAuthenticated) {
       setElapsed('00:00')
       return
     }
 
     const tick = () => {
+      const sessionStartedAt = getSessionStart()
+      if (sessionStartedAt == null) {
+        setElapsed('00:00')
+        return
+      }
       const diff = Date.now() - sessionStartedAt
       const m = Math.floor(diff / 60000)
       const s = Math.floor((diff % 60000) / 1000)
@@ -111,7 +117,7 @@ function useSessionDuration(sessionStartedAt: number | null) {
     const id = setInterval(tick, 1000)
     tick()
     return () => clearInterval(id)
-  }, [sessionStartedAt])
+  }, [isAuthenticated])
 
   return elapsed
 }
@@ -141,13 +147,13 @@ const CRISIS_LABELS: Record<string, string> = {
 
 export function ProfilePage() {
   const user = useAuthStore((s) => s.user)
-  const sessionStartedAt = useAuthStore((s) => s.sessionStartedAt)
+  const isAuthenticated = useAuthStore((s) => s.isAuthenticated)
   const logout = useAuthStore((s) => s.logout)
   const navigate = useNavigate()
-  const notifLogs = useCrisisStore((s) => s.notificationLogs)
+  const unreadNotifications = useCrisisStore(selectUnreadNotifications)
   const crisisLevel = useCrisisStore((s) => s.level)
-  const manualLock = useCrisisStore((s) => s.manualLock)
-  const scenario = useOpsStore((s) => s.scenario)
+  const emergencySimulationActive = useCrisisStore((s) => s.emergencySimulationActive)
+  const warningSimulationActive = useOpsStore((s) => s.warningSimulationActive)
   const mqttConnected = useConnectionStore((s) => s.mqttConnected)
   const { data: anomalies } = useAnomalies('ALL')
   const { fmtDateTime } = useDateFormat()
@@ -163,12 +169,12 @@ export function ProfilePage() {
     .toUpperCase()
     .slice(0, 2)
 
-  const sessionDuration = useSessionDuration(sessionStartedAt)
+  const sessionDuration = useSessionDuration(isAuthenticated)
+  const sessionStartedAt = getSessionStart()
   const sessionStart = sessionStartedAt != null ? fmtDateTime(new Date(sessionStartedAt)) : '—'
 
-  let activeSimCount = 0
-  if (scenario !== 'NONE') activeSimCount++
-  if (manualLock && crisisLevel !== 'none') activeSimCount++
+  const activeSimCount =
+    (warningSimulationActive ? 1 : 0) + (emergencySimulationActive ? 1 : 0)
 
   // Bağlı fabrika: MQTT açıksa Offline olmayan fabrikalar
   const connectedFactories = mqttConnected ? FACTORIES.filter((f) => f.status !== 'Offline').length : 0
@@ -177,7 +183,7 @@ export function ProfilePage() {
   const activityStats: ActivityStat[] = isStrategic
     ? [
         { value: String(activeSimCount), label: 'Aktif Simülasyon' },
-        { value: String(notifLogs.length), label: 'Okunmamış Bildirim' },
+        { value: String(unreadNotifications.length), label: 'Okunmamış Bildirim' },
         { value: sessionDuration, label: 'Bu Oturum Süresi' },
       ]
     : [
