@@ -95,6 +95,54 @@ Backend JWT kimlik doğrulama, telemetri, kriz audit ve AI uç noktalarıyla iş
    ```
    - Swagger UI: [http://127.0.0.1:8000/docs](http://127.0.0.1:8000/docs)
 
+### Render Deploy
+
+Production ortamı için backend Render, frontend Vercel üzerinde barındırılabilir.
+
+#### 1. Render'da PostgreSQL oluşturma
+
+1. [Render Dashboard](https://dashboard.render.com) → **New +** → **PostgreSQL**
+2. Veritabanını oluşturduktan sonra **Internal Database URL**'i kopyalayın
+3. URL'yi `postgresql://` ile başlıyorsa başına `+asyncpg` ekleyin:
+   ```
+   postgresql://user:pass@host:5432/dbname
+   → postgresql+asyncpg://user:pass@host:5432/dbname
+   ```
+
+> Tablolar ve seed kullanıcılar backend ilk ayağa kalktığında `init_db()` ile otomatik oluşturulur; ayrı SQL migration çalıştırmanız gerekmez.
+
+#### 2. Render'da Web Service oluşturma
+
+1. **New +** → **Web Service** → GitHub reposunu bağlayın
+2. Aşağıdaki ayarları girin:
+
+| Ayar | Değer |
+|------|-------|
+| **Root Directory** | `backend` |
+| **Build Command** | `pip install -r requirements.txt` |
+| **Start Command** | `uvicorn app.main:app --host 0.0.0.0 --port $PORT` |
+
+#### 3. Render environment variables
+
+| Değişken | Açıklama |
+|----------|----------|
+| `DATABASE_URL` | Render PostgreSQL Internal URL (`postgresql+asyncpg://...` formatında) |
+| `SECRET_KEY` | JWT imzalama için rastgele uzun bir string |
+| `OPENROUTER_API_KEY` | OpenRouter API anahtarı (AI uç noktaları) |
+| `AI_MODEL` | `google/gemini-2.5-flash-lite` |
+| `CORS_ORIGINS` | Vercel frontend URL'i (ör. `https://your-app.vercel.app`); birden fazla origin virgülle ayrılır |
+
+#### 4. Vercel'de frontend deploy
+
+1. [Vercel](https://vercel.com) → projeyi GitHub'dan import edin; **Root Directory:** `frontend`
+2. **Environment Variables** bölümüne ekleyin:
+
+| Değişken | Değer |
+|----------|-------|
+| `VITE_API_URL` | `https://your-backend-url.onrender.com/v1` |
+
+> `VITE_API_URL` build sırasında gömülür; değiştirdikten sonra yeniden deploy gerekir. Sondaki `/v1` sonekini unutmayın.
+
 ### Backend API Uç Noktaları
 
 | Uç Nokta | Açıklama |
