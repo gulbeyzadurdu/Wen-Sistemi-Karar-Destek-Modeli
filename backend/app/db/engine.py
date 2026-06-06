@@ -1,7 +1,7 @@
 from collections.abc import AsyncGenerator
 import logging
 
-from sqlalchemy import text
+from sqlalchemy import func, select, text
 from sqlalchemy.ext.asyncio import (
     AsyncSession,
     async_sessionmaker,
@@ -48,6 +48,31 @@ async def init_db() -> None:
     async with engine.begin() as conn:
         await conn.run_sync(Base.metadata.create_all)
         logger.info("Database tables created / verified.")
+
+    async with AsyncSessionLocal() as session:
+        from app.core.security import hash_password
+        from app.models.user import User
+
+        result = await session.execute(select(func.count()).select_from(User))
+        if result.scalar_one() == 0:
+            session.add_all(
+                [
+                    User(
+                        email="arif@bosb.gov.tr",
+                        password_hash=hash_password("wen2024"),
+                        role="STRATEGIC",
+                        name="Arif Bey",
+                    ),
+                    User(
+                        email="emre@bosb.gov.tr",
+                        password_hash=hash_password("wen2024"),
+                        role="TECHNICAL",
+                        name="Emre Bey",
+                    ),
+                ]
+            )
+            await session.commit()
+            logger.info("Seed users created: arif@bosb.gov.tr, emre@bosb.gov.tr")
 
     async with AsyncSessionLocal() as session:
         try:
