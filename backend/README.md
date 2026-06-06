@@ -34,9 +34,10 @@ Swagger UI: [http://127.0.0.1:8000/docs](http://127.0.0.1:8000/docs)
 | `POST` | `/v1/auth/login` | Email + şifre ile **HS256 JWT** token al |
 | `GET` | `/v1/auth/me` | Bearer token ile oturumdaki kullanıcı bilgisini döner |
 
-**Login isteği:**
-```json
-{ "email": "user@bosb.gov.tr", "password": "şifre" }
+**Login isteği (form-data, `username` = email):**
+```
+arif@bosb.gov.tr / admin  → STRATEGIC
+emre@bosb.gov.tr / admin  → TECHNICAL
 ```
 **Token yanıtı:**
 ```json

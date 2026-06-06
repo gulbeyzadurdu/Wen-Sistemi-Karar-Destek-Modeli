@@ -59,13 +59,13 @@ async def init_db() -> None:
                 [
                     User(
                         email="arif@bosb.gov.tr",
-                        password_hash=hash_password("wen2024"),
+                        password_hash=hash_password("admin"),
                         role="STRATEGIC",
                         name="Arif Bey",
                     ),
                     User(
                         email="emre@bosb.gov.tr",
-                        password_hash=hash_password("wen2024"),
+                        password_hash=hash_password("admin"),
                         role="TECHNICAL",
                         name="Emre Bey",
                     ),

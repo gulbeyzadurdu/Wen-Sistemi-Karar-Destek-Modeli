@@ -26,7 +26,7 @@ export const useAuthStore = create<AuthState>()(
           user: {
             id: crypto.randomUUID(),
             role,
-            name: name ?? (role === 'STRATEGIC' ? 'Arif - Strateji' : 'Emre - Operasyon'),
+            name: name ?? (role === 'STRATEGIC' ? 'Arif Bey' : 'Emre Bey'),
           },
           isAuthenticated: true,
         })

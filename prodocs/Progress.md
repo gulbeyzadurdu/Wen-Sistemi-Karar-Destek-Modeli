@@ -49,7 +49,7 @@ Yapılan işler, alınan kararlar ve bilinen kısıtlar. En yeni kayıt üstte.
 | MQTT subscriber | Yok; `telemetry-mock.ts` fallback |
 | RBAC | Frontend `RoleGate`; backend `require_role` yok |
 | AI PDF | `AiReportCard`'da print/PDF butonu yok |
-| Kullanıcı seed | README'deki test kullanıcıları; DB seed script yok |
+| Kullanıcı seed | `init_db()` ile `arif@bosb.gov.tr` / `emre@bosb.gov.tr` (şifre: `admin`) |
 | Font | PRD'de Barlow yazıyor; uygulama DM Sans / DM Mono kullanıyor |
 
 ---

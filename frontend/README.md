@@ -15,8 +15,8 @@ Tarayıcıda: **http://localhost:5173**
 
 | Rol | E-posta | Şifre |
 |---|---|---|
-| **Stratejik (Yönetici)** | `admin@bosb.gov.tr` | `admin` |
-| **Teknik (Operasyon)** | `operator@bosb.gov.tr` | `operator` |
+| **Stratejik (Yönetici)** | `arif@bosb.gov.tr` | `admin` |
+| **Teknik (Operasyon)** | `emre@bosb.gov.tr` | `admin` |
 
 Mock JWT `localStorage` (`wen-auth`) içinde tutulur; çıkış için `/settings → Oturumu kapat`.
 

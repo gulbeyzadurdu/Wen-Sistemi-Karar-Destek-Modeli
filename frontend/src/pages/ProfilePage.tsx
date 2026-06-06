@@ -22,7 +22,7 @@ interface Permission { name: string; level: PermLevel; note?: string }
 const STRATEGIC_DATA = {
   id: 'usr_a81f2c',
   job: 'Yönetici',
-  email: 'admin@bosb.gov.tr',
+  email: 'arif@bosb.gov.tr',
   phone: '+90 224 000 01',
   department: 'Strateji ve Planlama',
   lastLogin: '25 Mayıs, 14:32',
@@ -53,7 +53,7 @@ const STRATEGIC_DATA = {
 const TECHNICAL_DATA = {
   id: 'usr_b93d7e',
   job: 'Saha Operatörü',
-  email: 'operator@bosb.gov.tr',
+  email: 'emre@bosb.gov.tr',
   phone: '+90 224 000 02',
   department: 'Saha Operasyonları',
   lastLogin: '25 Mayıs, 09:04',
@@ -148,7 +148,7 @@ export function ProfilePage() {
   const isStrategic = (user?.role ?? 'STRATEGIC') === 'STRATEGIC'
   const profile = isStrategic ? STRATEGIC_DATA : TECHNICAL_DATA
 
-  const name = user?.name ?? (isStrategic ? 'Arif Yılmaz' : 'Emre Demir')
+  const name = user?.name ?? (isStrategic ? 'Arif Bey' : 'Emre Bey')
   const initials = name
     .split(' ')
     .map((n) => n[0])

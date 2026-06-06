@@ -44,12 +44,12 @@ npm run dev
 
 Tarayıcıda açın: **http://localhost:5173**
 
-### Test Kullanıcıları (Mock JWT)
+### Test Kullanıcıları
 
 | Rol | E-posta | Şifre | Erişim |
 |---|---|---|---|
-| **Stratejik (Yönetici)** | `admin@bosb.gov.tr` | `admin` | Stratejik panel, Trend grafiği, AI Analiz & Rapor, Bildirimler |
-| **Teknik (Operasyon)** | `operator@bosb.gov.tr` | `operator` | Operasyon paneli, Ham veri, Anomaliler |
+| **Stratejik (Yönetici)** | `arif@bosb.gov.tr` | `admin` | Stratejik panel, Trend grafiği, AI Analiz & Rapor, Bildirimler |
+| **Teknik (Operasyon)** | `emre@bosb.gov.tr` | `admin` | Operasyon paneli, Ham veri, Anomaliler |
 
 > Her iki rol de `/crisis`, `/simulations` ve `/settings` ekranlarına erişebilir.
 
