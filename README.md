@@ -2,6 +2,16 @@
 
 Endüstriyel Su–Enerji Nexus karar destek arayüzü. Stratejik (yönetici) ve Teknik (operasyon) rolleri için canlı telemetri simülasyonu, çok katmanlı kriz protokolü (Sarı / Turuncu / Kod Kırmızı / Acil Su Kesintisi), yapay zeka destekli analiz & raporlama ve fabrika bazlı izleme sunar.
 
+## Canlı Ortam
+
+| Bileşen | URL |
+|---------|-----|
+| **Frontend (Vercel)** | [https://wen-sistemi-karar-destek-modeli-l7es7vmmj.vercel.app](https://wen-sistemi-karar-destek-modeli-l7es7vmmj.vercel.app) |
+| **Backend API (Render)** | [https://wen-sistemi-karar-destek-modeli.onrender.com](https://wen-sistemi-karar-destek-modeli.onrender.com) |
+| **API Dokümantasyonu** | [https://wen-sistemi-karar-destek-modeli.onrender.com/docs](https://wen-sistemi-karar-destek-modeli.onrender.com/docs) |
+
+Giriş için aşağıdaki [Test Kullanıcıları](#test-kullanıcıları) tablosunu kullanın.
+
 ## Klasör Yapısı
 
 ```
