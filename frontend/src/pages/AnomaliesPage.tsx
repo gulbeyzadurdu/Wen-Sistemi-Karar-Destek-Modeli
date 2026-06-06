@@ -3,12 +3,10 @@ import { AlertCircle, ShieldAlert } from 'lucide-react'
 import { Skeleton } from '@/components/ui/skeleton'
 import { useAnomalies } from '@/hooks/useAnomalies'
 import { anomalySeverityBadgeClass, normalizeAnomalySeverity } from '@/lib/anomaly-severity'
-import { FACTORIES } from '@/mocks/factories'
 import { useOpsStore } from '@/stores/ops-store'
 
 export function AnomaliesPage() {
   const selectedFactoryId = useOpsStore((s) => s.selectedFactoryId)
-  const selectedFactory = FACTORIES.find((factory) => factory.id === selectedFactoryId)
   const anomalies = useAnomalies(selectedFactoryId)
 
   return (

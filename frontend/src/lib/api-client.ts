@@ -1,6 +1,6 @@
 import type { UserRole } from '@/types/wen'
 
-const BASE_URL = 'http://127.0.0.1:8000/v1'
+const BASE_URL = (import.meta.env.VITE_API_URL as string | undefined) ?? 'http://127.0.0.1:8000/v1'
 const TOKEN_KEY = 'wen-token'
 
 // ---------------------------------------------------------------------------

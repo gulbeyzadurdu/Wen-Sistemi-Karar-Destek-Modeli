@@ -2,7 +2,6 @@ import { Bell, LogOut, Radar, Settings, UserRound, X } from 'lucide-react'
 import { useEffect, useRef, useState } from 'react'
 import { Link, useNavigate } from 'react-router-dom'
 
-import { useLiveTelemetry } from '@/hooks/useLiveTelemetry'
 import { Button } from '@/components/ui/button'
 import { cn } from '@/lib/utils'
 import { useCrisisStore, type CrisisLogEntry } from '@/stores/crisis-store'
@@ -43,17 +42,12 @@ export function GlobalHeader({ className }: { className?: string }) {
   const mqttConnected = useConnectionStore((s) => s.mqttConnected)
   const redisFallback = useConnectionStore((s) => s.redisFallbackActive)
 
-  const telemetry = useLiveTelemetry()
-
-  const lockedRed = useCrisisStore(
-    (s) => s.manualLock && (s.level === 'red' || s.level === 'KOD_KIRMIZI' || s.level === 'WATER_CUTOFF'),
-  )
   const crisisLogs = useCrisisStore((s) => s.notificationLogs)
   // Debounced kriz seviyesi — CrisisProvider'daki 4-paket eşiğinden geçmiş değer
   const crisisLevel = useCrisisStore((s) => s.level)
 
   // Header tier'ı ham telemetriden değil, debounce edilmiş crisisStore'dan türetilir.
-  const tier: ReturnType<typeof useNexusComputation>['tier'] =
+  const tier: 'normal' | 'warning' | 'alert' | 'critical' =
     crisisLevel === 'none' ? 'normal'
     : crisisLevel === 'yellow' ? 'warning'
     : crisisLevel === 'orange' ? 'alert'

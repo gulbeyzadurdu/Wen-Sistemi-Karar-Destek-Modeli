@@ -210,7 +210,7 @@ export function TechnicalDashboardPage() {
       <section className="glass-card space-y-s4 p-s5">
         <div className="flex items-center justify-between gap-s3">
           <h2 className="font-semibold tracking-[0.12em] text-[#f0a500]">
-            {isFactorySelected ? `${selectedFactory.name} Sensör Akışı` : 'Gerçek Zamanlı Sensör Akışı'}
+            {isFactorySelected ? `${selectedFactory?.name} Sensör Akışı` : 'Gerçek Zamanlı Sensör Akışı'}
           </h2>
           <span className="font-mono text-[11px] text-solar">
             ANLIK · {series.fetchStatus.toUpperCase()} · {series.isFetching ? 'güncelleniyor...' : 'canlı'}
