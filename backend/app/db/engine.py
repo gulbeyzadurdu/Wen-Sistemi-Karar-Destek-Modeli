@@ -1,7 +1,7 @@
 from collections.abc import AsyncGenerator
 import logging
 
-from sqlalchemy import func, select, text
+from sqlalchemy import select, text
 from sqlalchemy.ext.asyncio import (
     AsyncSession,
     async_sessionmaker,
@@ -53,26 +53,30 @@ async def init_db() -> None:
         from app.core.security import hash_password
         from app.models.user import User
 
-        result = await session.execute(select(func.count()).select_from(User))
-        if result.scalar_one() == 0:
-            session.add_all(
-                [
+        seed_users = [
+            ("arif@bosb.gov.tr", "STRATEGIC", "Arif Bey"),
+            ("emre@bosb.gov.tr", "TECHNICAL", "Emre Bey"),
+        ]
+        admin_hash = hash_password("admin")
+
+        for email, role, name in seed_users:
+            result = await session.execute(select(User).where(User.email == email))
+            user = result.scalar_one_or_none()
+            if user is None:
+                session.add(
                     User(
-                        email="arif@bosb.gov.tr",
-                        password_hash=hash_password("admin"),
-                        role="STRATEGIC",
-                        name="Arif Bey",
-                    ),
-                    User(
-                        email="emre@bosb.gov.tr",
-                        password_hash=hash_password("admin"),
-                        role="TECHNICAL",
-                        name="Emre Bey",
-                    ),
-                ]
-            )
-            await session.commit()
-            logger.info("Seed users created: arif@bosb.gov.tr, emre@bosb.gov.tr")
+                        email=email,
+                        password_hash=admin_hash,
+                        role=role,
+                        name=name,
+                    )
+                )
+                logger.info("Seed user created: %s", email)
+            else:
+                user.password_hash = admin_hash
+                logger.info("Seed user password updated: %s", email)
+
+        await session.commit()
 
     async with AsyncSessionLocal() as session:
         try:
