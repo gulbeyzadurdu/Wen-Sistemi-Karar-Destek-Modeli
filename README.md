@@ -12,6 +12,19 @@ Endüstriyel Su–Enerji Nexus karar destek arayüzü. Stratejik (yönetici) ve 
 
 Giriş için aşağıdaki [Test Kullanıcıları](#test-kullanıcıları) tablosunu kullanın.
 
+## Veritabanı Altyapısı
+
+| Ortam | Veritabanı | Not |
+|-------|------------|-----|
+| **Yerel geliştirme / test** | [Supabase](https://supabase.com) (PostgreSQL) | `backend/.env` içindeki `DATABASE_URL` |
+| **Canlı (production)** | [Render PostgreSQL](https://render.com) | Render Web Service `DATABASE_URL` ortam değişkeni |
+
+> Backend yalnızca `DATABASE_URL` ile standart PostgreSQL'e bağlanır; sağlayıcıya özel kod yoktur.
+
+### Docker hakkında
+
+Repoda `docker-compose.yml` bulunur (TimescaleDB, Redis, Mosquitto) ve tam kurulum adımlarında referans verilir. **Bu proje geliştirme sürecinde Docker kullanılmamıştır**; yerel backend testleri Supabase üzerinden yapılmıştır. Docker, kendi makinenizde tam altyapıyı ayağa kaldırmak isteyenler için isteğe bağlı bir seçenektir.
+
 ## Klasör Yapısı
 
 ```
@@ -20,7 +33,7 @@ Giriş için aşağıdaki [Test Kullanıcıları](#test-kullanıcıları) tablos
 ├── backend/           # FastAPI arkayüz (Python 3.11+)
 ├── prodocs/           # Geliştirme referans belgeleri (ajanlar için)
 ├── infrastructure/    # Mosquitto vb. altyapı config
-├── docker-compose.yml # TimescaleDB, Redis, MQTT
+├── docker-compose.yml # İsteğe bağlı: TimescaleDB, Redis, MQTT (Docker)
 ├── .env.example       # Ortam değişkeni şablonu (gerçek anahtar yok)
 ├── .gitignore
 └── README.md          # Bu dosya
@@ -83,8 +96,8 @@ Tarayıcıda açın: **http://localhost:5173**
 
 Backend JWT kimlik doğrulama, telemetri, kriz audit ve AI uç noktalarıyla işlevseldir. Frontend hata veya auth yoksa mock veriye otomatik fallback yapar.
 
-1. Kökte `.env` oluşturun: `copy .env.example .env`
-2. Altyapıyı başlatın: `docker compose up -d` (TimescaleDB/PostgreSQL 15, Redis, Mosquitto)
+1. `backend/.env` oluşturun ve `DATABASE_URL` tanımlayın (ör. Supabase PostgreSQL bağlantı dizesi, `postgresql+asyncpg://...` formatında).
+2. **Alternatif (Docker):** Kökte `.env` oluşturup `docker compose up -d` ile TimescaleDB/PostgreSQL 15, Redis ve Mosquitto'yu başlatabilirsiniz. Docker kullanmıyorsanız bu adımı atlayın.
 3. **Backend** (`/backend`):
    ```powershell
    cd backend
@@ -178,7 +191,9 @@ Production ortamı için backend Render, frontend Vercel üzerinde barındırıl
 - **Frontend:** React 19 + TypeScript + Vite, Tailwind CSS, Zustand, TanStack Query, Recharts, lucide-react, react-router-dom v7
 - **Backend:** FastAPI (Python 3.11+), Uvicorn, async SQLAlchemy 2.0, asyncpg, passlib[argon2], python-jose, httpx
 - **AI:** OpenRouter API (google/gemini-2.5-flash-lite) — anlık özet, dönemsel rapor, bağlam-duyarlı chatbot
-- **Altyapı:** TimescaleDB / PostgreSQL 15, Redis, Mosquitto (MQTT)
+- **Veritabanı:** PostgreSQL — yerel geliştirmede Supabase, canlıda Render PostgreSQL
+- **Deploy:** Frontend Vercel, backend Render
+- **İsteğe bağlı altyapı (Docker):** TimescaleDB / PostgreSQL 15, Redis, Mosquitto (MQTT)
 
 ## Ek Referanslar
 
