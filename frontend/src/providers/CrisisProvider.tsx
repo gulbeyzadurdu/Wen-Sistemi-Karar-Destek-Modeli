@@ -13,6 +13,9 @@ const ESCALATION_CYCLES = 4
 /** Telemetriden Nexus seviyesini krize bağlar ve kök tema verisini işler */
 export function CrisisProvider({ children }: { children: React.ReactNode }) {
   const hydrateFromTier = useCrisisStore((s) => s.hydrateFromTier)
+  const manualLock = useCrisisStore((s) => s.manualLock)
+  const escalationEpoch = useCrisisStore((s) => s.escalationEpoch)
+  const autoEscalationPausedUntil = useCrisisStore((s) => s.autoEscalationPausedUntil)
   const manualLockedRed = useCrisisStore((s) => s.manualLock && (s.level === 'red' || s.level === 'KOD_KIRMIZI' || s.level === 'WATER_CUTOFF'))
 
   const telemetry = useLiveTelemetry()
@@ -24,10 +27,24 @@ export function CrisisProvider({ children }: { children: React.ReactNode }) {
 
   // Ardışık anormal paket sayacı — anlık spike'ların kriz banner'ı tetiklemesini önler.
   const consecutiveAbnormal = useRef(0)
+  const prevEscalationEpoch = useRef(escalationEpoch)
 
   useEffect(() => {
+    if (prevEscalationEpoch.current === escalationEpoch) return
+    prevEscalationEpoch.current = escalationEpoch
+    consecutiveAbnormal.current = 0
+  }, [escalationEpoch])
+
+  useEffect(() => {
+    if (manualLock) return
     if (manualLockedRed) return
     if (!telemetry.data) return
+
+    const inCooldown = autoEscalationPausedUntil != null && Date.now() < autoEscalationPausedUntil
+    if (inCooldown) {
+      if (tier === 'normal') consecutiveAbnormal.current = 0
+      return
+    }
 
     if (tier === 'normal') {
       // Normale dönüşte sayacı ve kriz seviyesini hemen sıfırla.
@@ -40,7 +57,7 @@ export function CrisisProvider({ children }: { children: React.ReactNode }) {
         hydrateFromTier(tier)
       }
     }
-  }, [manualLockedRed, hydrateFromTier, telemetry.data, tier])
+  }, [autoEscalationPausedUntil, hydrateFromTier, manualLock, manualLockedRed, telemetry.data, tier])
 
   useEffect(() => {
     document.documentElement.dataset.nexusTier = tier

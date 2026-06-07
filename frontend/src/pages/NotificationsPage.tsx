@@ -26,7 +26,7 @@ export function NotificationsPage() {
     <div className="space-y-s6">
       <header className="space-y-s2">
         <p className="font-mono text-[11px] uppercase tracking-[0.45em] text-slate">/bildirimler</p>
-        <h1 className="font-display text-4xl">Bildirim merkezi</h1>
+        <h1 className="font-display text-4xl tracking-[0.12em]">Bildirim Merkezi</h1>
         <p className="text-slate">MQTT ve e-posta kanallarından gelen statik mock kayıtlar</p>
       </header>
 

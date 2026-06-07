@@ -17,7 +17,7 @@ export function AnalysisPage() {
         <div className="flex flex-wrap items-center gap-s3">
           <Radar className="h-7 w-7 text-energy" aria-hidden />
           <div>
-            <h1 className="font-display text-4xl">Trend analizi</h1>
+            <h1 className="font-display text-4xl tracking-[0.12em]">Trend Analizi</h1>
             <p className="text-slate">Stratejik roller için aynı veri yapısı, daha uzun aralıkta örnekleştirilir</p>
           </div>
         </div>

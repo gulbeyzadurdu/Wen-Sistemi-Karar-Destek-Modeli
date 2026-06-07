@@ -48,7 +48,7 @@ export function CrisisPage() {
     >
       <header className="space-y-s2">
         <p className="font-mono text-[11px] uppercase tracking-[0.45em] text-slate">/kriz-protokolu</p>
-        <h1 className="font-display text-4xl text-foreground drop-shadow-[0_0_18px_var(--destructive)]">Kriz müdahale motoru</h1>
+        <h1 className="font-display text-4xl tracking-[0.12em] text-foreground drop-shadow-[0_0_18px_var(--destructive)]">Kriz Müdahale Motoru</h1>
         <p className="text-slate">Sarı gözlem, turuncu hazırlık ve kod kırmızı aksiyon seviye makinesinin mock arayüzü</p>
       </header>
 

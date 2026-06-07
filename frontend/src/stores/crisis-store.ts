@@ -3,6 +3,9 @@ import { persist } from 'zustand/middleware'
 
 import type { CrisisLevelUI, NexusTier } from '@/types/wen'
 
+/** Çözüm/reset sonrası telemetri kaynaklı otomatik eskalasyon bu süre duraklatılır. */
+export const AUTO_ESCALATION_COOLDOWN_MS = 3 * 60 * 1000
+
 export type CrisisLogEntry = {
   id: string
   tsIso: string
@@ -37,6 +40,10 @@ type CrisisState = {
   appendAuditLog: (message: string) => void
   /** Auto escalation from telemetry tier — manualLock varsa hiç dokunmaz */
   hydrateFromTier: (tier: NexusTier) => void
+  /** resolve/reset sonrası artar; CrisisProvider eskalasyon sayacını sıfırlar */
+  escalationEpoch: number
+  /** Çözüm/reset sonrası telemetri eskalasyonu bu zamana kadar duraklatılır */
+  autoEscalationPausedUntil: number | null
 }
 
 export function selectUnreadNotifications(state: CrisisState): CrisisLogEntry[] {
@@ -57,6 +64,13 @@ function buildLog(level: CrisisLevelUI, message: string): CrisisLogEntry {
   }
 }
 
+function pauseAutoEscalation(state: CrisisState): Pick<CrisisState, 'escalationEpoch' | 'autoEscalationPausedUntil'> {
+  return {
+    escalationEpoch: state.escalationEpoch + 1,
+    autoEscalationPausedUntil: Date.now() + AUTO_ESCALATION_COOLDOWN_MS,
+  }
+}
+
 export const useCrisisStore = create<CrisisState>()(
   persist(
     (set, get) => ({
@@ -68,6 +82,8 @@ export const useCrisisStore = create<CrisisState>()(
       notificationLogs: [],
       dismissedNotificationIds: [],
       auditLogs: [],
+      escalationEpoch: 0,
+      autoEscalationPausedUntil: null,
       appendNotificationLog: (message) =>
         set((state) => ({
           notificationLogs: [...state.notificationLogs, buildLog(state.level, message)],
@@ -90,6 +106,8 @@ export const useCrisisStore = create<CrisisState>()(
           notifyTeamAck: false,
           notificationLogs: [],
           dismissedNotificationIds: [],
+          escalationEpoch: 0,
+          autoEscalationPausedUntil: null,
         }),
       appendAuditLog: (message) =>
         set((state) => ({
@@ -143,6 +161,7 @@ export const useCrisisStore = create<CrisisState>()(
           manualLock: false,
           emergencySimulationActive: false,
           notifyTeamAck: false,
+          ...pauseAutoEscalation(state),
           auditLogs: [...state.auditLogs, buildLog('none', 'Olay çözüldü, sistem normale alındı.')],
         })),
       resetSystem: () =>
@@ -153,12 +172,14 @@ export const useCrisisStore = create<CrisisState>()(
           notifyTeamAck: false,
           notificationLogs: [],
           dismissedNotificationIds: [],
+          ...pauseAutoEscalation(state),
           auditLogs: [...state.auditLogs, buildLog('none', 'Reset System komutu çalıştırıldı.')],
         })),
       hydrateFromTier: (tier) => {
-        const { manualLock } = get()
+        const { manualLock, autoEscalationPausedUntil } = get()
         // manualLock aktifse (simülasyon, KOD_KIRMIZI, WATER_CUTOFF vb.) telemetri seviyeyi ezmez
         if (manualLock) return
+        if (autoEscalationPausedUntil != null && Date.now() < autoEscalationPausedUntil) return
 
         const nextLevel: CrisisLevelUI =
           tier === 'normal' ? 'none' : tier === 'warning' ? 'yellow' : tier === 'alert' ? 'orange' : 'orange'

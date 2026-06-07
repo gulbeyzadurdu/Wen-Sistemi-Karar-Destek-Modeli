@@ -23,7 +23,7 @@ export function ReportsPage() {
         <div className="flex flex-wrap items-center gap-s3">
           <ClipboardList className="h-8 w-8 text-water" aria-hidden />
           <div>
-            <h1 className="font-display text-4xl uppercase tracking-[0.2em]">ESG çıktıları</h1>
+            <h1 className="font-display text-4xl tracking-[0.12em]">ESG Çıktıları</h1>
             <p className="text-slate">Yeşil mutabakat veri blokları + WeasyPrint benzeri mock indirimi</p>
           </div>
         </div>

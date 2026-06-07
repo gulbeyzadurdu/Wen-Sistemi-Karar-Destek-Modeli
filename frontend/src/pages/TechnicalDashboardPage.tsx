@@ -175,7 +175,7 @@ export function TechnicalDashboardPage() {
         <p className="font-mono text-[11px] uppercase tracking-[0.45em] text-slate">/operasyon-konsolu</p>
         <div className="flex flex-wrap items-center justify-between gap-s3">
           <div>
-            <h1 className="font-display text-4xl uppercase tracking-[0.2em]">Operasyon Konsolu</h1>
+            <h1 className="font-display text-4xl tracking-[0.12em]">Operasyon Konsolu</h1>
             <p className="text-slate">Endüstriyel kontrol odası görünümü: canlı telemetri, eşik ve anomali takibi</p>
           </div>
           <div className="inline-flex items-center gap-s2 rounded-pill border border-border bg-elevated px-s4 py-s2 text-xs font-mono uppercase tracking-[0.35em] text-foreground">

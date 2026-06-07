@@ -78,7 +78,7 @@ export function SettingsPage() {
           <p className="font-mono text-[11px] uppercase tracking-[0.45em] text-slate">Sistem Ayarlar Merkezi</p>
           <p className="font-mono text-[11px] text-slate">{formattedDateTime}</p>
         </div>
-        <h1 className="font-display text-4xl uppercase tracking-[0.16em]">Sistem Parametreleri</h1>
+        <h1 className="font-display text-4xl tracking-[0.12em]">Sistem Parametreleri</h1>
         <p className="text-sm text-slate">Eşik, bildirim, bölgesel seçenekler ve simülasyonları tek panelden yönet.</p>
       </header>
 

@@ -16,7 +16,7 @@ export function AnomaliesPage() {
         <div className="flex flex-wrap items-center gap-s3">
           <ShieldAlert className="h-8 w-8 text-energy" aria-hidden />
           <div>
-            <h1 className="font-display text-4xl uppercase tracking-[0.2em]">Olay günlükleri</h1>
+            <h1 className="font-display text-4xl tracking-[0.12em]">Olay Günlükleri</h1>
             <p className="text-slate">MQTT + Timescale çıktılarının uyarı özeti mock verisidir.</p>
           </div>
         </div>
