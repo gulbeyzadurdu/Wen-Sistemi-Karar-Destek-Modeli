@@ -25,10 +25,20 @@ function decodePayload(token: string): Record<string, unknown> {
 // Core fetch wrapper — handles 401 globally
 // ---------------------------------------------------------------------------
 
-async function request<T>(path: string, options: RequestInit = {}): Promise<T> {
-  const res = await fetch(`${BASE_URL}${path}`, options)
+type RequestOptions = RequestInit & {
+  /** Login gibi kimlik doğrulama isteklerinde 401 için oturum süresi mesajı gösterme. */
+  skipSessionExpiredOn401?: boolean
+}
+
+async function request<T>(path: string, options: RequestOptions = {}): Promise<T> {
+  const { skipSessionExpiredOn401, ...fetchOptions } = options
+  const res = await fetch(`${BASE_URL}${path}`, fetchOptions)
 
   if (res.status === 401) {
+    if (skipSessionExpiredOn401) {
+      const body = await res.json().catch(() => ({})) as { detail?: string }
+      throw new Error(body.detail ?? 'Kullanıcı adı veya şifre hatalı')
+    }
     clearToken()
     throw new Error('Oturum süresi doldu, lütfen tekrar giriş yapın.')
   }
@@ -67,6 +77,7 @@ export async function login(email: string, password: string): Promise<LoginResul
       method: 'POST',
       headers: { 'Content-Type': 'application/x-www-form-urlencoded' },
       body: form.toString(),
+      skipSessionExpiredOn401: true,
     },
   )
 

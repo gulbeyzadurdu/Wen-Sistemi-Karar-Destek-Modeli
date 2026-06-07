@@ -87,7 +87,7 @@ export function LoginPage() {
                 value={username}
                 onChange={(event) => setUsername(event.target.value)}
                 autoComplete="username"
-                placeholder="arif@bosb.gov.tr"
+                placeholder="Kullanıcı adı"
                 className="h-11 w-full bg-transparent text-sm text-[#e6edf5] placeholder:text-[#5d728d] focus:outline-none"
               />
             </div>

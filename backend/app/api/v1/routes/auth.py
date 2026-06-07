@@ -31,7 +31,7 @@ async def login(
     if user is None or not verify_password(form.password, user.password_hash):
         raise HTTPException(
             status_code=status.HTTP_401_UNAUTHORIZED,
-            detail="Email veya şifre hatalı",
+            detail="Kullanıcı adı veya şifre hatalı",
             headers={"WWW-Authenticate": "Bearer"},
         )
 
